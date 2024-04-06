@@ -5,9 +5,9 @@ export default {
   content: ["./src/**/*.tsx"],
   theme: {
     fontFamily: {
-      sans: ["var(--font-figtree)", ...fontFamily.sans],
-      headline: ["var(--font-figtree)", ...fontFamily.sans],
-      body: ["var(--font-figtree)", ...fontFamily.sans],
+      sans: ["var(--font-sans)", ...fontFamily.sans],
+      headline: ["var(--font-sans)", ...fontFamily.sans],
+      body: ["var(--font-sans)", ...fontFamily.sans],
     },
     fontSize: {
       xxs: ["0.625rem", { lineHeight: "0.75rem" }], // 10px

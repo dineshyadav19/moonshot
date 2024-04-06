@@ -3,6 +3,9 @@ import Link from "next/link";
 import Layout from "~/components/Layout";
 
 import { api } from "~/utils/api";
+import Login from "./Login";
+import SignUp from "./SignUp";
+import Categories from "./Categories";
 
 export default function Home() {
   const hello = api.post.hello.useQuery({ text: "from tRPC" });
@@ -15,7 +18,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <h1>Hellokkk</h1>
+        {/* <Login /> */}
+        {/* <SignUp /> */}
+        <Categories />
       </Layout>
     </>
   );
