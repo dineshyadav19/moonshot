@@ -20,6 +20,7 @@ const Categories = () => {
                 id="scales"
                 name="scales"
                 checked={index % 2 === 0}
+                readOnly
                 className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
               />
               <label htmlFor="scales" className="text-base">

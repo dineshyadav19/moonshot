@@ -1,14 +1,14 @@
 import Head from "next/head";
-import Link from "next/link";
 import Layout from "~/components/Layout";
 
 import { api } from "~/utils/api";
-import Login from "./Login";
-import SignUp from "./SignUp";
+// import Login from "./Login";
+// import SignUp from "./SignUp";
 import Categories from "./Categories";
+import { generateItems } from "~/utils/generateData";
 
 export default function Home() {
-  const hello = api.post.hello.useQuery({ text: "from tRPC" });
+  const createData = api.post.create.useMutation();
 
   return (
     <>
@@ -21,6 +21,14 @@ export default function Home() {
         {/* <Login /> */}
         {/* <SignUp /> */}
         <Categories />
+
+        <button
+          onClick={async () =>
+            createData.mutate({ category_name: "Dinesh Movie", selected: true })
+          }
+        >
+          Submit
+        </button>
       </Layout>
     </>
   );

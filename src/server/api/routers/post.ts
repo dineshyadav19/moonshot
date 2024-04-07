@@ -1,6 +1,14 @@
+import { Prisma, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+
+const itemSchema = z.object({
+  category_name: z.string(),
+  selected: z.boolean(),
+});
+
+const prisma = new PrismaClient();
 
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
@@ -11,18 +19,21 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  create: publicProcedure
-    .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
+  create: publicProcedure.input(itemSchema).mutation(async ({ ctx, input }) => {
+    try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      return ctx.db.post.create({
+      return ctx.db.item.create({
         data: {
-          name: input.name,
+          category_name: input.category_name,
+          selected: input.selected,
         },
       });
-    }),
+    } catch (error) {
+      console.error("Error creating items:", error);
+      throw new Error("Failed to create items.");
+    }
+  }),
 
   getLatest: publicProcedure.query(({ ctx }) => {
     return ctx.db.post.findFirst({
