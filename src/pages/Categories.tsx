@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
+import Pagination from "~/components/Pagination";
+import { api } from "~/utils/api";
 
 const Categories = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const { isLoading, data } = api.post.getLatest.useQuery({
+    page: currentPage,
+  });
+
+  if (isLoading) return <p>Loading......</p>;
+
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <p className="mb-4 text-3.5xl font-semibold">
@@ -13,21 +22,27 @@ const Categories = () => {
         <p className="text-xl font-medium">My saved interests!</p>
 
         <div className="mt-4 flex flex-col gap-y-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="flex gap-x-2">
+          {data?.items.map((val) => (
+            <div key={val.id} className="flex gap-x-2">
               <input
                 type="checkbox"
                 id="scales"
                 name="scales"
-                checked={index % 2 === 0}
+                checked={val.selected}
                 readOnly
                 className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
               />
               <label htmlFor="scales" className="text-base">
-                Scales
+                {val.category_name}
               </label>
             </div>
           ))}
+
+          <Pagination
+            currentPage={data?.currentPage ?? 1}
+            onPageChange={(page) => setCurrentPage(page)}
+            totalPages={data?.totalPages ?? 1}
+          />
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { generateItems } from "~/utils/generateData";
 
 export default function Home() {
   const createData = api.post.create.useMutation();
+  //const getData = api.post.getLatest.useQuery({ page: 37 });
 
   return (
     <>
@@ -22,11 +23,7 @@ export default function Home() {
         {/* <SignUp /> */}
         <Categories />
 
-        <button
-          onClick={async () =>
-            createData.mutate({ category_name: "Dinesh Movie", selected: true })
-          }
-        >
+        <button onClick={async () => createData.mutate(generateItems(90))}>
           Submit
         </button>
       </Layout>

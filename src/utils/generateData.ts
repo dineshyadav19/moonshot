@@ -8,8 +8,5 @@ function generateItem() {
 }
 
 export function generateItems(count: number) {
-  return Array.from({ length: count }).map((_, index) => {
-    const item = generateItem();
-    return item;
-  });
+  return Array.from({ length: count }).map(generateItem);
 }
