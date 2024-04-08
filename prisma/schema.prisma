@@ -15,6 +15,7 @@ model User {
     email     String       @unique
     password  String
     createdAt DateTime     @default(now())
+    name      String
     items     Categories[]
 
     @@index([email])

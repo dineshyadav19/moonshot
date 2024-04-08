@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { compare } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { env } from "~/env";
@@ -15,7 +15,86 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
+const signUpSchema = z.object({
+  email: z.string(),
+  name: z.string(),
+  password: z.string(),
+});
+
 export const postRouter = createTRPCRouter({
+  createUser: publicProcedure
+    .input(signUpSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { name, email, password } = input;
+
+      // Check for existing user by email
+      const existingUser = await ctx.db.user.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        return { success: false, message: "Email already in use" };
+      }
+
+      // Generate a 6-digit OTP
+      // const otp = generateOTP(6);
+
+      // // Send OTP verification email (replace with your email sending logic)
+      // const emailSent = await sendEmail({
+      //   to: email,
+      //   subject: "Verify Your Account",
+      //   text: `Your verification code is ${otp}`,
+      // });
+
+      // if (!emailSent) {
+      //   return { success: false, message: "Failed to send verification email" };
+      // }
+
+      // User record with unverified email (temporary)
+      const user = await ctx.db.user.create({
+        data: {
+          name,
+          email,
+          password: await hash(password, 10),
+          // verified: false, // User is not verified yet
+        },
+      });
+
+      // await ctx.db.user.update({
+      //   where: { id: userId },
+      //   data: { verified: true },
+      // });
+
+      return { success: true, userId: user.id }; // Return userId and OTP for verification
+    }),
+  // .mutation(async ({ ctx, userId, otp }) => {
+  //   // Find user by ID
+  //   const user = await ctx.db.user.findUnique({
+  //     where: { id: userId },
+  //   });
+
+  //   if (!user) {
+  //     return { success: false, message: "Invalid user ID" };
+  //   }
+
+  //   if (user.verified) {
+  //     return { success: false, message: "Account already verified" };
+  //   }
+
+  //   // Validate OTP (replace with your OTP validation logic)
+  //   if (otp !== "your-actual-otp") {
+  //     // Replace with your actual OTP validation logic
+  //     return { success: false, message: "Invalid verification code" };
+  //   }
+
+  //   // Update user to verified
+  //   await ctx.db.user.update({
+  //     where: { id: userId },
+  //     data: { verified: true },
+  //   });
+
+  //   return { success: true, message: "Account verified successfully" };
+  // }),
   createCategories: publicProcedure
     .input(itemSchema)
     .mutation(async ({ ctx, input }) => {
