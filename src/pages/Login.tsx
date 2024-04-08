@@ -2,22 +2,22 @@ import Link from "next/link";
 import React from "react";
 import { api } from "~/utils/api";
 
+type LoginType = {
+  email: string;
+  password: string;
+};
+
 const Login = () => {
   const loginUser = api.post.login.useMutation();
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const form = new FormData(e.currentTarget);
-    const email = form.get("email");
-    const password = form.get("password");
-    console.log({ email, password });
-    const body = {} as unknown;
+    const body = {} as LoginType;
     for (const [key, value] of form.entries()) {
-      body[key] = value;
+      body[key as keyof LoginType] = value as string;
     }
     loginUser.mutate(body);
-    console.log(body);
-    // Do Further input validation and submit the form
   }
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
@@ -66,7 +66,7 @@ const Login = () => {
       <div className="flex flex-wrap justify-center gap-x-1">
         <p className="text-brand-black-100">Don&apos;t have an account?</p>
 
-        <Link href="/signup" className="font-medium uppercase">
+        <Link href="/SignUp" className="font-medium uppercase">
           Sign up
         </Link>
       </div>
