@@ -4,7 +4,7 @@ import { api } from "~/utils/api";
 
 const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { isLoading, data } = api.post.getLatest.useQuery({
+  const { isLoading, data } = api.post.getCategoriesByUserId.useQuery({
     page: currentPage,
   });
 

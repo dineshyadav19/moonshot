@@ -10,20 +10,23 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model User {
+    id        Int          @id @default(autoincrement())
+    email     String       @unique
+    password  String
+    createdAt DateTime     @default(now())
+    items     Categories[]
 
-    @@index([name])
+    @@index([email])
 }
 
-model Item {
+model Categories {
     id            Int      @id @default(autoincrement())
     category_name String
     updated_on    DateTime @default(now())
     selected      Boolean  @default(false)
+    userId        Int
+    user          User     @relation(fields: [userId], references: [id])
 
     @@index([category_name, selected])
 }

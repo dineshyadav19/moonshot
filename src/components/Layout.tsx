@@ -1,14 +1,19 @@
 import Header from "./Header";
-
+import { Inter } from "next/font/google";
 type LayoutProps = {
   children: React.ReactNode;
 };
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
-      <Header />
-      <main>
+      <main className={`font-sans ${inter.variable}`}>
+        <Header />
         <div id="content" className="mx-auto max-w-xl px-6 py-10">
           {children}
         </div>
