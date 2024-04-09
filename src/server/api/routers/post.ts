@@ -1,12 +1,10 @@
 import { z } from "zod";
 import { hash, compare } from "bcryptjs";
-import { sign } from "jsonwebtoken";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
-import { env } from "~/env";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { SignJWT } from "jose";
+import { nanoid } from "nanoid";
+import { getJWTSecretKey } from "~/lib/auth";
+import { serialize } from "cookie";
 
 const itemSchema = z.object({
   category_name: z.string(),
@@ -49,6 +47,7 @@ export const postRouter = createTRPCRouter({
 
       return { success: true, userId: user.id };
     }),
+
   createCategories: publicProcedure
     .input(z.array(itemSchema))
     .mutation(async ({ ctx, input }) => {
@@ -83,14 +82,24 @@ export const postRouter = createTRPCRouter({
     }
 
     // Generate JWT token with user ID
-    const token = sign({ userId: user.id }, env.JWT_SECRET, {
-      expiresIn: "1h",
-      algorithm: "HS256",
-    });
+    const token = await new SignJWT({})
+      .setProtectedHeader({ alg: "HS256" })
+      .setJti(nanoid())
+      .setIssuedAt()
+      .setExpirationTime("1h")
+      .sign(new TextEncoder().encode(getJWTSecretKey()));
+
+    ctx.res.setHeader(
+      "Set-Cookie",
+      serialize("user_token", token, {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      }),
+    );
 
     return {
       success: true,
-      token,
       userId: user.id,
     };
   }),

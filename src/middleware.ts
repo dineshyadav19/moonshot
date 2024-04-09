@@ -1,19 +1,22 @@
-// import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { verifyToken } from "./lib/auth";
 
-// export default async function middleware(req: NextRequest) {
-//   const sessionToken = req.cookies.get("session_token")?.value;
-//   console.log(sessionToken);
-//   if (sessionToken && !req.nextUrl.pathname.startsWith("/")) {
-//     return Response.redirect(new URL("/", req.url));
-//   }
+export default async function middleware(req: NextRequest) {
+  const token = req.cookies.get("user_token")?.value;
+  const verifiedToken =
+    token && (await verifyToken(token).catch((err) => console.log(err)));
 
-//   if (!sessionToken && !req.nextUrl.pathname.startsWith("/Login")) {
-//     return Response.redirect(new URL("/Login", req.url));
-//   }
-// }
+  if (req.nextUrl.pathname.startsWith("/Login") && !verifiedToken) {
+    return;
+  }
+  if (!verifiedToken) {
+    return NextResponse.redirect(new URL("/Login", req.url));
+  }
+  if (req.nextUrl.pathname.startsWith("/Login") && verifiedToken) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+}
 
-// export const config = {
-//   matcher: "/",
-// };
-
-export default () => {};
+export const config = {
+  matcher: ["/", "/Login"],
+};
