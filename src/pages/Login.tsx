@@ -2,7 +2,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { api } from "~/utils/api";
-import { generateItems } from "~/utils/generateData";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type LoginType = {
   email: string;
@@ -11,13 +12,22 @@ type LoginType = {
 
 const Login = () => {
   const router = useRouter();
-  const generateCategoriesForUser = api.post.createCategories.useMutation();
+
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
-      generateCategoriesForUser.mutate(generateItems(100, data.userId!));
-      await router.push("/");
+      if (data.success) {
+        toast.success("Successfully logged In", {
+          position: "bottom-right",
+        });
+        await router.push("/");
+      } else {
+        toast.error(data.message, {
+          position: "bottom-right",
+        });
+      }
     },
   });
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -28,6 +38,7 @@ const Login = () => {
     }
     loginUser.mutate(body);
   }
+
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <div className="text-center">
@@ -43,9 +54,10 @@ const Login = () => {
             Email
           </label>
           <input
-            type="text"
+            type="email"
             name="email"
             id="email"
+            required
             placeholder="Enter your email"
             className="rounded-md border border-brand-neutral-400 p-2"
           />
@@ -58,6 +70,7 @@ const Login = () => {
             type="password"
             name="password"
             id="password"
+            required
             placeholder="Enter your password"
             className="rounded-md border border-brand-neutral-400 p-2"
           />

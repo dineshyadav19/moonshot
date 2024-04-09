@@ -49,6 +49,7 @@ export const postRouter = createTRPCRouter({
 
       return { success: true, userId: user.id };
     }),
+
   createCategories: publicProcedure
     .input(z.array(itemSchema))
     .mutation(async ({ ctx, input }) => {
