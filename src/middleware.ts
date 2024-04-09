@@ -1,15 +1,19 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { isUserAuthenticated } from "~/utils/session";
+// import type { NextRequest } from "next/server";
 
-export default function middleware(req: NextRequest) {
-  if (isUserAuthenticated) {
-    return NextResponse.next();
-  }
+// export default async function middleware(req: NextRequest) {
+//   const sessionToken = req.cookies.get("session_token")?.value;
+//   console.log(sessionToken);
+//   if (sessionToken && !req.nextUrl.pathname.startsWith("/")) {
+//     return Response.redirect(new URL("/", req.url));
+//   }
 
-  return NextResponse.redirect(new URL("/Login", req.url));
-}
+//   if (!sessionToken && !req.nextUrl.pathname.startsWith("/Login")) {
+//     return Response.redirect(new URL("/Login", req.url));
+//   }
+// }
 
-export const config = {
-  matcher: "/",
-};
+// export const config = {
+//   matcher: "/",
+// };
+
+export default () => {};

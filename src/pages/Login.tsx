@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import { api } from "~/utils/api";
+import { generateItems } from "~/utils/generateData";
 
 type LoginType = {
   email: string;
@@ -8,7 +10,14 @@ type LoginType = {
 };
 
 const Login = () => {
-  const loginUser = api.post.login.useMutation();
+  const router = useRouter();
+  const generateCategoriesForUser = api.post.createCategories.useMutation();
+  const loginUser = api.post.login.useMutation({
+    onSuccess: async (data) => {
+      generateCategoriesForUser.mutate(generateItems(100, data.userId!));
+      await router.push("/");
+    },
+  });
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
