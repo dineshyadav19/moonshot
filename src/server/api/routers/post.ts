@@ -1,7 +1,11 @@
 import { z } from "zod";
-import { compare } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
 import { sign } from "jsonwebtoken";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { env } from "~/env";
 
 const itemSchema = z.object({
@@ -15,9 +19,38 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
+const signUpSchema = z.object({
+  email: z.string(),
+  name: z.string(),
+  password: z.string(),
+});
+
 export const postRouter = createTRPCRouter({
+  createUser: publicProcedure
+    .input(signUpSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { name, email, password } = input;
+
+      // Check for existing user by email
+      const existingUser = await ctx.db.user.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        return { success: false, message: "Email already in use" };
+      }
+      const user = await ctx.db.user.create({
+        data: {
+          name,
+          email,
+          password: await hash(password, 10),
+        },
+      });
+
+      return { success: true, userId: user.id };
+    }),
   createCategories: publicProcedure
-    .input(itemSchema)
+    .input(z.array(itemSchema))
     .mutation(async ({ ctx, input }) => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -36,7 +69,6 @@ export const postRouter = createTRPCRouter({
 
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
     const { email, password } = input;
-
     // Find user by email
     const user = await ctx.db.user.findUnique({
       where: { email },
@@ -53,11 +85,13 @@ export const postRouter = createTRPCRouter({
     // Generate JWT token with user ID
     const token = sign({ userId: user.id }, env.JWT_SECRET, {
       expiresIn: "1h",
+      algorithm: "HS256",
     });
 
     return {
       success: true,
       token,
+      userId: user.id,
     };
   }),
 
@@ -65,6 +99,7 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number().optional(),
+        userId: z.number(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -82,6 +117,7 @@ export const postRouter = createTRPCRouter({
         distinct: "category_name",
         skip,
         take: 6,
+        where: { userId: input.userId },
         orderBy: { updated_on: "desc" },
       });
 
@@ -91,6 +127,38 @@ export const postRouter = createTRPCRouter({
         currentPage: page,
         nextPage: page < totalPages ? page + 1 : null,
         previousPage: page > 1 ? page - 1 : null,
+      };
+    }),
+
+  updateCategoriesByUserId: publicProcedure
+    .input(
+      z.object({
+        userId: z.number(),
+        rowId: z.number(),
+        value: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId, rowId, value } = input;
+
+      const updatedRow = await ctx.db.categories.update({
+        where: {
+          id: rowId,
+          userId,
+        },
+        data: {
+          selected: value,
+        },
+      });
+
+      // 3. Check for successful update (optional)
+      if (!updatedRow) {
+        throw new Error("Row update failed"); // Handle potential errors
+      }
+
+      // 4. Return a success message (optional)
+      return {
+        message: "Row updated successfully",
       };
     }),
 });

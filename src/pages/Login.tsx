@@ -1,7 +1,33 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
+import { api } from "~/utils/api";
+import { generateItems } from "~/utils/generateData";
+
+type LoginType = {
+  email: string;
+  password: string;
+};
 
 const Login = () => {
+  const router = useRouter();
+  const generateCategoriesForUser = api.post.createCategories.useMutation();
+  const loginUser = api.post.login.useMutation({
+    onSuccess: async (data) => {
+      generateCategoriesForUser.mutate(generateItems(100, data.userId!));
+      await router.push("/");
+    },
+  });
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const form = new FormData(e.currentTarget);
+    const body = {} as LoginType;
+    for (const [key, value] of form.entries()) {
+      body[key as keyof LoginType] = value as string;
+    }
+    loginUser.mutate(body);
+  }
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <div className="text-center">
@@ -11,7 +37,7 @@ const Login = () => {
         <h2 className="text-base">The next gen business marketplace</h2>
       </div>
 
-      <form action="" className="mt-8 flex flex-col gap-y-6">
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-y-6">
         <div className="flex flex-col gap-y-1">
           <label htmlFor="email" className="text-base">
             Email
@@ -29,9 +55,9 @@ const Login = () => {
             Password
           </label>
           <input
-            type="text"
-            name="email"
-            id="email"
+            type="password"
+            name="password"
+            id="password"
             placeholder="Enter your password"
             className="rounded-md border border-brand-neutral-400 p-2"
           />
@@ -49,7 +75,7 @@ const Login = () => {
       <div className="flex flex-wrap justify-center gap-x-1">
         <p className="text-brand-black-100">Don&apos;t have an account?</p>
 
-        <Link href="/signup" className="font-medium uppercase">
+        <Link href="/SignUp" className="font-medium uppercase">
           Sign up
         </Link>
       </div>

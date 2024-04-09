@@ -7,6 +7,11 @@ function generateItem() {
   };
 }
 
-export function generateItems(count: number) {
-  return Array.from({ length: count }).map(generateItem);
+export function generateItems(count: number, id: number) {
+  return Array.from({ length: count }).map(() => {
+    return {
+      userId: id,
+      ...generateItem(),
+    };
+  });
 }

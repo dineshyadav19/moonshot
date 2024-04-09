@@ -1,7 +1,26 @@
 import Link from "next/link";
 import React from "react";
+import { api } from "~/utils/api";
+
+type SignUpType = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 const SignUp = () => {
+  const createUser = api.post.createUser.useMutation();
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const form = new FormData(e.currentTarget);
+    const body = {} as SignUpType;
+    for (const [key, value] of form.entries()) {
+      body[key as keyof SignUpType] = value as string;
+    }
+    createUser.mutate(body);
+  }
+
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <div className="text-center">
@@ -11,7 +30,7 @@ const SignUp = () => {
         <h2 className="text-base">The next gen business marketplace</h2>
       </div>
 
-      <form action="" className="mt-8 flex flex-col gap-y-6">
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-y-6">
         <div className="flex flex-col gap-y-1">
           <label htmlFor="name" className="text-base">
             Name
@@ -29,7 +48,7 @@ const SignUp = () => {
             Email
           </label>
           <input
-            type="text"
+            type="email"
             name="email"
             id="email"
             placeholder="Enter your email"
@@ -41,9 +60,9 @@ const SignUp = () => {
             Password
           </label>
           <input
-            type="text"
-            name="email"
-            id="email"
+            type="password"
+            name="password"
+            id="password"
             placeholder="Enter your password"
             className="rounded-md border border-brand-neutral-400 p-2"
           />
@@ -61,7 +80,7 @@ const SignUp = () => {
       <div className="flex flex-wrap justify-center gap-x-1">
         <p className="text-brand-black-100">Have an Account?</p>
 
-        <Link href="/signup" className="font-medium uppercase">
+        <Link href="/Login" className="font-medium uppercase">
           Login
         </Link>
       </div>

@@ -4,8 +4,13 @@ import { api } from "~/utils/api";
 
 const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { isLoading, data } = api.post.getCategoriesByUserId.useQuery({
+  const { isLoading, data, refetch } = api.post.getCategoriesByUserId.useQuery({
     page: currentPage,
+    userId: 1,
+  });
+
+  const updateCategory = api.post.updateCategoriesByUserId.useMutation({
+    onSuccess: () => refetch(),
   });
 
   if (isLoading) return <p>Loading......</p>;
@@ -26,10 +31,14 @@ const Categories = () => {
             <div key={val.id} className="flex gap-x-2">
               <input
                 type="checkbox"
-                id="scales"
-                name="scales"
                 checked={val.selected}
-                readOnly
+                onChange={(e) =>
+                  updateCategory.mutate({
+                    rowId: val.id,
+                    userId: 1,
+                    value: e.target.checked,
+                  })
+                }
                 className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
               />
               <label htmlFor="scales" className="text-base">
