@@ -46,7 +46,8 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  * @see https://trpc.io/docs/context
  */
 export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+  const { req, res } = _opts;
+  return { ...createInnerTRPCContext({}), req, res };
 };
 
 /**
@@ -100,20 +101,3 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
-
-export const protectedProcedure = t.procedure.use(
-  async function isAuthed(opts) {
-    const { ctx } = opts;
-    // `ctx.user` is nullable
-    if (!ctx.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    return opts.next({
-      ctx: {
-        // ✅ user value is known to be non-null now
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        user: ctx.user,
-      },
-    });
-  },
-);
