@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { hash, compare } from "bcryptjs";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { env } from "~/env";
 import { SignJWT } from "jose";
 import { nanoid } from "nanoid";
 import { getJWTSecretKey } from "~/lib/auth";
