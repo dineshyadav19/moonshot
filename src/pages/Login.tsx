@@ -79,7 +79,7 @@ const Login = () => {
         <input
           type="submit"
           value="Login"
-          className="w-full rounded-md bg-black p-4 text-base font-medium text-white"
+          className="w-full cursor-pointer rounded-md bg-black p-4 text-base font-medium text-white"
         />
       </form>
 

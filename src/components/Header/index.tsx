@@ -1,8 +1,21 @@
 import IconSearch from "@icons/Search.svg";
 import IconCart from "@icons/Cart.svg";
 import Nav from "./Nav";
+import { api } from "~/utils/api";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const Header = () => {
+  const router = useRouter();
+  const { mutate } = api.post.logout.useMutation({
+    onSuccess: async (data) => {
+      toast.success(data.message, {
+        position: "bottom-right",
+      });
+      await router.push("/Login");
+    },
+  });
+
   return (
     <>
       <header className={`mt-4 w-full bg-transparent`}>
@@ -10,7 +23,13 @@ const Header = () => {
           <div className="flex gap-4 px-6 text-sm text-brand-black-100">
             <button disabled>Help</button>
             <button disabled>Orders & Returns</button>
-            <button>Hi, John</button>
+            <button
+              onClick={() => mutate()}
+              className="cursor-pointer"
+              disabled={router.asPath === "/" ? false : true}
+            >
+              {router.asPath === "/" ? "Logout" : "Login"}
+            </button>
           </div>
         </div>
         <div className="mx-auto max-w-[1440px] px-6">
