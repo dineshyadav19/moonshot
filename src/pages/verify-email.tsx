@@ -7,20 +7,29 @@ import React, {
   type KeyboardEvent,
 } from "react";
 import { toast } from "react-toastify";
+import Loader from "~/components/Loader";
 import { api } from "~/utils/api";
 
 const VerifyEmail = () => {
   const length = 6;
   const router = useRouter();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(""));
+
   const verifyOtp = api.post.verifyOtp.useMutation({
     onSuccess: async (data) => {
-      toast.success(data.message, {
-        position: "bottom-right",
-      });
-      await router.push("/");
+      if (data.success) {
+        toast.success(data.message, {
+          position: "bottom-right",
+        });
+        await router.replace("/");
+      } else {
+        toast.error(data.message, {
+          position: "bottom-right",
+        });
+      }
     },
   });
+
   const inputRefs = useRef<HTMLInputElement[]>(
     Array.from({ length }, () => null as unknown as HTMLInputElement),
   );
@@ -31,8 +40,10 @@ const VerifyEmail = () => {
     }
   }, []);
 
-  const handleOtpSubmit = (otp: string) => {
-    verifyOtp.mutate({ otp: otp });
+  const handleOtpSubmit = () => {
+    if (otp.join("").length === length) {
+      verifyOtp.mutate({ otp: otp.join("") });
+    }
   };
 
   const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
@@ -43,10 +54,6 @@ const VerifyEmail = () => {
     // allow only one input
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
-
-    // submit trigger
-    const combinedOtp = newOtp.join("");
-    if (combinedOtp.length === length) handleOtpSubmit(combinedOtp);
 
     // Move to next input if current field is filled
     if (value && index < length - 1 && inputRefs.current[index + 1]) {
@@ -71,13 +78,14 @@ const VerifyEmail = () => {
     }
   };
 
+  if (verifyOtp.isPending) return <Loader />;
+
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <div className="text-center">
         <p className="mb-4 text-3.5xl font-semibold">Verify your email</p>
         <h2 className="text-base">
-          Enter the 8 digit code you have received on <br />
-          <span className="font-medium">swa***@gmail.com</span>
+          Enter the 6 digit code you have received on your email
         </h2>
       </div>
 
@@ -106,6 +114,7 @@ const VerifyEmail = () => {
       <input
         type="submit"
         value="Verify"
+        onClick={handleOtpSubmit}
         className="w-full cursor-pointer rounded-md bg-black p-4 text-base font-medium text-white"
       />
     </div>

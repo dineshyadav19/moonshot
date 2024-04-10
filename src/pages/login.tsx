@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { api } from "~/utils/api";
 import { toast } from "react-toastify";
+import Loader from "~/components/Loader";
 
 type LoginType = {
   email: string;
@@ -18,7 +19,7 @@ const Login = () => {
         toast.success(data.message, {
           position: "bottom-right",
         });
-        await router.push("/");
+        await router.replace("/");
       } else {
         toast.error(data.message, {
           position: "bottom-right",
@@ -37,6 +38,8 @@ const Login = () => {
     }
     loginUser.mutate(body);
   }
+
+  if (loginUser.isPending) return <Loader />;
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { toast } from "react-toastify";
+import Loader from "~/components/Loader";
 import { api } from "~/utils/api";
 import { generateItems } from "~/utils/generateData";
 
@@ -42,6 +43,8 @@ const SignUp = () => {
     }
     createUser.mutate(body);
   }
+
+  if (createUser.isPending) return <Loader />;
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
