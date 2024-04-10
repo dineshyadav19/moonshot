@@ -7,20 +7,20 @@ export default async function middleware(req: NextRequest) {
   const verifiedToken =
     token && (await verifyToken(token).catch((err) => console.log(err)));
 
-  const checkForAuthUrl = ["/Login", "/SignUp"].some((path) =>
+  const isPublicUrl = ["/Login", "/SignUp"].some((path) =>
     req.nextUrl.pathname.startsWith(path),
   );
 
-  if (checkForAuthUrl && !verifiedToken) {
+  if (isPublicUrl && verifiedToken) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  if (isPublicUrl && !verifiedToken) {
     return;
   }
 
-  if (!verifiedToken) {
+  if (!isPublicUrl && !verifiedToken) {
     return NextResponse.redirect(new URL("/Login", req.url));
-  }
-
-  if (checkForAuthUrl && verifiedToken) {
-    return NextResponse.redirect(new URL("/", req.url));
   }
 }
 
