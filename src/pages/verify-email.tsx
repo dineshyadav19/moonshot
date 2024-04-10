@@ -32,7 +32,7 @@ const VerifyEmail = () => {
   }, []);
 
   const handleOtpSubmit = (otp: string) => {
-    verifyOtp.mutate({ otp: otp, userId: 2 });
+    verifyOtp.mutate({ otp: otp });
   };
 
   const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {

@@ -38,6 +38,7 @@ export const postRouter = createTRPCRouter({
       if (existingUser) {
         return { success: false, message: "Email already in use" };
       }
+
       const otp = Math.floor(Math.random() * 1000000)
         .toString()
         .padStart(6, "0");
@@ -56,21 +57,45 @@ export const postRouter = createTRPCRouter({
         otp,
       });
 
+      const token = await new SignJWT({})
+        .setProtectedHeader({ alg: "HS256" })
+        .setJti(nanoid())
+        .setIssuedAt()
+        .setExpirationTime("1h")
+        .sign(new TextEncoder().encode(getJWTSecretKey()));
+
+      ctx.res.appendHeader(
+        "Set-Cookie",
+        serialize("user_token", token, {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
+      ctx.res.appendHeader(
+        "Set-Cookie",
+        serialize("user_id", user.id.toString(), {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
       return { success: true, userId: user.id };
     }),
 
   verifyOtp: publicProcedure
     .input(
       z.object({
-        userId: z.number(),
         otp: z.string().length(6),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, otp } = input;
+      const { otp } = input;
 
       const user = await ctx.db.user.findUnique({
-        where: { id: userId },
+        where: { id: parseInt(ctx.req.cookies.user_id ?? "") },
       });
 
       if (!user) {
@@ -82,7 +107,7 @@ export const postRouter = createTRPCRouter({
       }
 
       await ctx.db.user.update({
-        where: { id: userId },
+        where: { id: parseInt(ctx.req.cookies.user_id ?? "") },
         data: { otp: undefined }, // Set otp to null after successful verification
       });
 
@@ -93,9 +118,18 @@ export const postRouter = createTRPCRouter({
         .setExpirationTime("1h")
         .sign(new TextEncoder().encode(getJWTSecretKey()));
 
-      ctx.res.setHeader(
+      ctx.res.appendHeader(
         "Set-Cookie",
         serialize("user_token", token, {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
+      ctx.res.appendHeader(
+        "Set-Cookie",
+        serialize("user_id", user.id.toString(), {
           httpOnly: true,
           path: "/",
           secure: process.env.NODE_ENV === "production",
@@ -127,7 +161,7 @@ export const postRouter = createTRPCRouter({
       .setExpirationTime("1h")
       .sign(new TextEncoder().encode(getJWTSecretKey()));
 
-    ctx.res.setHeader(
+    ctx.res.appendHeader(
       "Set-Cookie",
       serialize("user_token", token, {
         httpOnly: true,
@@ -147,7 +181,7 @@ export const postRouter = createTRPCRouter({
 
     return {
       success: true,
-      userId: user.id,
+      message: "Successfully Logged In",
     };
   }),
 
@@ -171,6 +205,7 @@ export const postRouter = createTRPCRouter({
     );
 
     return {
+      success: true,
       message: "Logged out successfully",
     };
   }),
@@ -248,6 +283,7 @@ export const postRouter = createTRPCRouter({
       }
 
       return {
+        success: true,
         message: "Category updated successfully",
       };
     }),

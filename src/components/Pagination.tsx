@@ -41,7 +41,7 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <div className="mt-4 flex justify-center">
       <button
-        className={`mr-2 rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-black disabled:opacity-50 ${
+        className={`mr-2 rounded-md px-2 py-1 font-medium text-gray-700 hover:bg-gray-100 hover:text-black disabled:opacity-50 md:px-3 md:py-2 ${
           isFirstPage ? "cursor-not-allowed bg-gray-300 text-gray-500" : ""
         }`}
         disabled={isFirstPage}
@@ -53,7 +53,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {pageNumbers.map((pageNumber) => (
           <button
             key={pageNumber}
-            className={`rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-black ${
+            className={`rounded-md px-2 py-1 font-medium text-gray-700 hover:bg-gray-100 hover:text-black md:px-3 md:py-2 ${
               currentPage === pageNumber
                 ? "bg-brand-neutral-400 text-white"
                 : ""
@@ -66,7 +66,7 @@ const Pagination: React.FC<PaginationProps> = ({
       </div>
 
       <button
-        className={`mr-2 rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 hover:text-black disabled:opacity-50 ${
+        className={`ml-2 rounded-md px-2 py-1 font-medium text-gray-700 hover:bg-gray-100 hover:text-black disabled:opacity-50 md:px-3 md:py-2 ${
           isLastPage ? "cursor-not-aligned bg-gray-300 text-gray-500" : ""
         }`}
         disabled={isLastPage}

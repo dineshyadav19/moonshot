@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
+import Loader from "./Loader";
 
 type CategoryRow = {
   id: number;
@@ -20,6 +21,7 @@ const Categories = () => {
   const updateCategory = api.post.updateCategoriesByUserId.useMutation({
     onSuccess: () => refetch(),
   });
+
   const handleUpdateCategory = (
     e: React.ChangeEvent<HTMLInputElement>,
     val: CategoryRow,
@@ -30,11 +32,11 @@ const Categories = () => {
     });
   };
 
-  if (isLoading) return <p>Loading......</p>;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
-      <p className="mb-4 text-3.5xl font-semibold">
+      <p className="mb-4 text-center text-2xl font-semibold md:text-3.5xl">
         Please mark your interests!
       </p>
 
