@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import React, {
   useEffect,
   useRef,
@@ -5,10 +6,21 @@ import React, {
   type ChangeEvent,
   type KeyboardEvent,
 } from "react";
+import { toast } from "react-toastify";
+import { api } from "~/utils/api";
 
 const VerifyEmail = () => {
   const length = 6;
+  const router = useRouter();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(""));
+  const verifyOtp = api.post.verifyOtp.useMutation({
+    onSuccess: async (data) => {
+      toast.success(data.message, {
+        position: "bottom-right",
+      });
+      await router.push("/");
+    },
+  });
   const inputRefs = useRef<HTMLInputElement[]>(
     Array.from({ length }, () => null as unknown as HTMLInputElement),
   );
@@ -20,8 +32,7 @@ const VerifyEmail = () => {
   }, []);
 
   const handleOtpSubmit = (otp: string) => {
-    // Default submit behavior or you can provide a custom behavior here
-    console.log("OTP submitted:", otp);
+    verifyOtp.mutate({ otp: otp, userId: 2 });
   };
 
   const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +98,7 @@ const VerifyEmail = () => {
               onChange={(e) => handleChange(index, e)}
               onClick={() => handleClick(index)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="h-8 w-8 rounded-md border border-brand-neutral-400 md:h-12 md:w-12"
+              className="h-8 w-8 rounded-md border border-brand-neutral-400 text-center md:h-12 md:w-12"
             />
           );
         })}

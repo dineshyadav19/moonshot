@@ -2,6 +2,7 @@ import Head from "next/head";
 import Header from "./Header";
 import { Inter } from "next/font/google";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 type LayoutProps = {
   children: React.ReactNode;
 };
@@ -24,8 +25,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div id="content" className="mx-auto max-w-xl px-6 py-10">
           {children}
         </div>
-        <ToastContainer />
       </main>
+      <ToastContainer />
     </>
   );
 };

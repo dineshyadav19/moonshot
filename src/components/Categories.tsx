@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
 
 const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [getUserId, setGetUserId] = useState("");
+
   const { isLoading, data, refetch } = api.post.getCategoriesByUserId.useQuery({
     page: currentPage,
-    userId: 1,
+    userId: parseInt(getUserId),
   });
 
   const updateCategory = api.post.updateCategoriesByUserId.useMutation({
     onSuccess: () => refetch(),
   });
+
+  useEffect(() => {
+    const userId = localStorage.getItem("user_id") ?? "1";
+    setGetUserId(userId);
+  }, []);
 
   if (isLoading) return <p>Loading......</p>;
 
@@ -42,7 +49,7 @@ const Categories = () => {
                 className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
               />
               <label htmlFor="scales" className="text-base">
-                {val.category_name}
+                {val.categoryName}
               </label>
             </div>
           ))}

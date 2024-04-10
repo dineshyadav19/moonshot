@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import React from "react";
 import { api } from "~/utils/api";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 type LoginType = {
   email: string;
@@ -16,6 +15,7 @@ const Login = () => {
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
+        localStorage.setItem("user_id", data.userId!.toString());
         toast.success("Successfully logged In", {
           position: "bottom-right",
         });
