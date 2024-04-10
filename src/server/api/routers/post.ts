@@ -58,8 +58,6 @@ export const postRouter = createTRPCRouter({
           data: input,
           skipDuplicates: true,
         });
-
-        // return await ctx.db.item.deleteMany({});
       } catch (error) {
         console.error("Error creating items:", error);
         throw new Error("Failed to create items.");
