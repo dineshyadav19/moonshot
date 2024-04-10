@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 
 function generateItem() {
   return {
-    category_name: faker.commerce.department(),
+    categoryName: faker.commerce.department(),
     selected: faker.datatype.boolean(),
   };
 }

@@ -5,9 +5,10 @@ import { SignJWT } from "jose";
 import { nanoid } from "nanoid";
 import { getJWTSecretKey } from "~/lib/auth";
 import { serialize } from "cookie";
+import { sendLoginEmail } from "~/utils/mailer";
 
 const itemSchema = z.object({
-  category_name: z.string(),
+  categoryName: z.string(),
   selected: z.boolean(),
   userId: z.number(),
 });
@@ -37,12 +38,52 @@ export const postRouter = createTRPCRouter({
       if (existingUser) {
         return { success: false, message: "Email already in use" };
       }
+      const otp = Math.floor(Math.random() * 1000000)
+        .toString()
+        .padStart(6, "0");
+
       const user = await ctx.db.user.create({
         data: {
           name,
           email,
           password: await hash(password, 10),
+          otp,
         },
+      });
+
+      await sendLoginEmail({
+        email,
+        otp,
+      });
+
+      return { success: true, userId: user.id };
+    }),
+
+  verifyOtp: publicProcedure
+    .input(
+      z.object({
+        userId: z.number(),
+        otp: z.string().length(6), // Enforce 6-digit OTP
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId, otp } = input;
+
+      const user = await ctx.db.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        return { success: false, message: "Invalid user ID" };
+      }
+
+      if (user.otp !== otp) {
+        return { success: false, message: "Invalid OTP" };
+      }
+
+      await ctx.db.user.update({
+        where: { id: userId },
+        data: { otp: undefined }, // Set otp to null after successful verification
       });
 
       const token = await new SignJWT({})
@@ -61,7 +102,7 @@ export const postRouter = createTRPCRouter({
         }),
       );
 
-      return { success: true, userId: user.id };
+      return { success: true, message: "OTP verified successfully!" };
     }),
 
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
@@ -146,18 +187,18 @@ export const postRouter = createTRPCRouter({
       const skip = (page - 1) * 6;
 
       const totalItems: Array<{ row_count: number }> = await ctx.db.$queryRaw`
-        SELECT COUNT(DISTINCT category_name) AS row_count
+        SELECT COUNT(DISTINCT categoryName) AS row_count
         FROM "Categories";
       `;
 
       const totalPages = Math.ceil(Number(totalItems[0]?.row_count) / 6);
 
       const items = await ctx.db.categories.findMany({
-        distinct: "category_name",
+        distinct: "categoryName",
         skip,
         take: 6,
         where: { userId: input.userId },
-        orderBy: { updated_on: "desc" },
+        orderBy: { updatedOn: "desc" },
       });
 
       return {

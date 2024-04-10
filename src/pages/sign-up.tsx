@@ -20,10 +20,11 @@ const SignUp = () => {
     onSuccess: async (data) => {
       if (data.success) {
         generateCategoriesForUser.mutate(generateItems(100, data.userId!));
+        localStorage.setItem("user_id", data.userId!.toString());
         toast.success("Successfully signed up", {
           position: "bottom-right",
         });
-        await router.push("/");
+        await router.push("/verify-email");
       } else {
         toast.error(data.message, {
           position: "bottom-right",
@@ -105,7 +106,7 @@ const SignUp = () => {
       <div className="flex flex-wrap justify-center gap-x-1">
         <p className="text-brand-black-100">Have an Account?</p>
 
-        <Link href="/Login" className="font-medium uppercase">
+        <Link href="/login" className="font-medium uppercase">
           Login
         </Link>
       </div>

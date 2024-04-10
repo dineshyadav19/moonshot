@@ -17,17 +17,18 @@ model User {
     createdAt DateTime     @default(now())
     name      String
     items     Categories[]
+    otp       String
 
     @@index([email])
 }
 
 model Categories {
-    id            Int      @id @default(autoincrement())
-    category_name String
-    updated_on    DateTime @default(now())
-    selected      Boolean  @default(false)
-    userId        Int
-    user          User     @relation(fields: [userId], references: [id])
+    id           Int      @id @default(autoincrement())
+    categoryName String
+    updatedOn    DateTime @default(now())
+    selected     Boolean  @default(false)
+    userId       Int
+    user         User     @relation(fields: [userId], references: [id])
 
-    @@index([category_name, selected])
+    @@index([categoryName, selected])
 }

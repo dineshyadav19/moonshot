@@ -7,7 +7,7 @@ export default async function middleware(req: NextRequest) {
   const verifiedToken =
     token && (await verifyToken(token).catch((err) => console.log(err)));
 
-  const isPublicUrl = ["/Login", "/SignUp"].some((path) =>
+  const isPublicUrl = ["/login", "/sign-up"].some((path) =>
     req.nextUrl.pathname.startsWith(path),
   );
 
@@ -20,10 +20,10 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (!isPublicUrl && !verifiedToken) {
-    return NextResponse.redirect(new URL("/Login", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 }
 
 export const config = {
-  matcher: ["/", "/Login", "/SignUp"],
+  matcher: ["/", "/login", "/sign-up"],
 };
