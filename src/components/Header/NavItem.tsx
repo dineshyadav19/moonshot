@@ -3,13 +3,11 @@ import Link from "next/link";
 type NavItemProps = {
   href: string;
   children: React.ReactNode;
-  isActive?: boolean;
   target?: "_self" | "_blank" | "_parent" | "_top";
 };
 
 const NavItem: React.FC<NavItemProps> = ({
   href,
-  isActive,
   target = "_blank",
   children,
 }) => {
@@ -18,9 +16,7 @@ const NavItem: React.FC<NavItemProps> = ({
       <Link
         href={href}
         target={target}
-        className={`text-base font-medium tracking-normal transition-opacity ${
-          isActive ? "opacity-100" : "opacity-70 hover:opacity-100"
-        } text-black`}
+        className={`pointer-events-none text-base font-medium tracking-normal text-black opacity-70 transition-opacity hover:opacity-100`}
       >
         {children}
       </Link>
