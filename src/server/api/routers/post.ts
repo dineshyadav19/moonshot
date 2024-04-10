@@ -38,6 +38,7 @@ export const postRouter = createTRPCRouter({
       if (existingUser) {
         return { success: false, message: "Email already in use" };
       }
+
       const otp = Math.floor(Math.random() * 1000000)
         .toString()
         .padStart(6, "0");
@@ -56,21 +57,45 @@ export const postRouter = createTRPCRouter({
         otp,
       });
 
+      const token = await new SignJWT({})
+        .setProtectedHeader({ alg: "HS256" })
+        .setJti(nanoid())
+        .setIssuedAt()
+        .setExpirationTime("1h")
+        .sign(new TextEncoder().encode(getJWTSecretKey()));
+
+      ctx.res.appendHeader(
+        "Set-Cookie",
+        serialize("user_token", token, {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
+      ctx.res.appendHeader(
+        "Set-Cookie",
+        serialize("user_id", user.id.toString(), {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
       return { success: true, userId: user.id };
     }),
 
   verifyOtp: publicProcedure
     .input(
       z.object({
-        userId: z.number(),
-        otp: z.string().length(6), // Enforce 6-digit OTP
+        otp: z.string().length(6),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, otp } = input;
+      const { otp } = input;
 
       const user = await ctx.db.user.findUnique({
-        where: { id: userId },
+        where: { id: parseInt(ctx.req.cookies.user_id ?? "") },
       });
 
       if (!user) {
@@ -82,7 +107,7 @@ export const postRouter = createTRPCRouter({
       }
 
       await ctx.db.user.update({
-        where: { id: userId },
+        where: { id: parseInt(ctx.req.cookies.user_id ?? "") },
         data: { otp: undefined }, // Set otp to null after successful verification
       });
 
@@ -93,9 +118,18 @@ export const postRouter = createTRPCRouter({
         .setExpirationTime("1h")
         .sign(new TextEncoder().encode(getJWTSecretKey()));
 
-      ctx.res.setHeader(
+      ctx.res.appendHeader(
         "Set-Cookie",
         serialize("user_token", token, {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
+      ctx.res.appendHeader(
+        "Set-Cookie",
+        serialize("user_id", user.id.toString(), {
           httpOnly: true,
           path: "/",
           secure: process.env.NODE_ENV === "production",
@@ -107,7 +141,6 @@ export const postRouter = createTRPCRouter({
 
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
     const { email, password } = input;
-    // Find user by email
     const user = await ctx.db.user.findUnique({
       where: { email },
     });
@@ -128,7 +161,7 @@ export const postRouter = createTRPCRouter({
       .setExpirationTime("1h")
       .sign(new TextEncoder().encode(getJWTSecretKey()));
 
-    ctx.res.setHeader(
+    ctx.res.appendHeader(
       "Set-Cookie",
       serialize("user_token", token, {
         httpOnly: true,
@@ -137,15 +170,23 @@ export const postRouter = createTRPCRouter({
       }),
     );
 
+    ctx.res.appendHeader(
+      "Set-Cookie",
+      serialize("user_id", user.id.toString(), {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      }),
+    );
+
     return {
       success: true,
-      userId: user.id,
+      message: "Successfully Logged In",
     };
   }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    // Clear the JWT token from cookies (client-side)
-    ctx.res.setHeader(
+    ctx.res.appendHeader(
       "Set-Cookie",
       serialize("user_token", "", {
         httpOnly: true,
@@ -154,7 +195,17 @@ export const postRouter = createTRPCRouter({
       }),
     );
 
+    ctx.res.appendHeader(
+      "Set-Cookie",
+      serialize("user_id", "", {
+        httpOnly: true,
+        path: "/",
+        expires: new Date(0), // Set expiration in the past
+      }),
+    );
+
     return {
+      success: true,
       message: "Logged out successfully",
     };
   }),
@@ -179,7 +230,6 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number().optional(),
-        userId: z.number(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -187,18 +237,17 @@ export const postRouter = createTRPCRouter({
       const skip = (page - 1) * 6;
 
       const totalItems: Array<{ row_count: number }> = await ctx.db.$queryRaw`
-        SELECT COUNT(DISTINCT categoryName) AS row_count
+        SELECT COUNT(DISTINCT "categoryName") AS row_count
         FROM "Categories";
       `;
 
       const totalPages = Math.ceil(Number(totalItems[0]?.row_count) / 6);
 
       const items = await ctx.db.categories.findMany({
-        distinct: "categoryName",
+        distinct: ["categoryName"],
         skip,
         take: 6,
-        where: { userId: input.userId },
-        orderBy: { updatedOn: "desc" },
+        where: { userId: parseInt(ctx.req.cookies.user_id ?? "") },
       });
 
       return {
@@ -213,31 +262,28 @@ export const postRouter = createTRPCRouter({
   updateCategoriesByUserId: publicProcedure
     .input(
       z.object({
-        userId: z.number(),
         rowId: z.number(),
         value: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, rowId, value } = input;
+      const { rowId, value } = input;
 
       const updatedRow = await ctx.db.categories.update({
         where: {
           id: rowId,
-          userId,
         },
         data: {
           selected: value,
         },
       });
 
-      // 3. Check for successful update (optional)
       if (!updatedRow) {
-        throw new Error("Failed to update category"); // Handle potential errors
+        throw new Error("Failed to update category");
       }
 
-      // 4. Return a success message (optional)
       return {
+        success: true,
         message: "Category updated successfully",
       };
     }),

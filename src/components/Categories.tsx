@@ -1,30 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
+import Loader from "./Loader";
+
+type CategoryRow = {
+  id: number;
+  categoryName: string;
+  updatedOn: Date;
+  selected: boolean;
+  userId: number;
+};
 
 const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [getUserId, setGetUserId] = useState("");
 
   const { isLoading, data, refetch } = api.post.getCategoriesByUserId.useQuery({
     page: currentPage,
-    userId: parseInt(getUserId),
   });
 
   const updateCategory = api.post.updateCategoriesByUserId.useMutation({
     onSuccess: () => refetch(),
   });
 
-  useEffect(() => {
-    const userId = localStorage.getItem("user_id") ?? "1";
-    setGetUserId(userId);
-  }, []);
+  const handleUpdateCategory = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    val: CategoryRow,
+  ) => {
+    updateCategory.mutate({
+      rowId: val.id,
+      value: e.target.checked,
+    });
+  };
 
-  if (isLoading) return <p>Loading......</p>;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
-      <p className="mb-4 text-3.5xl font-semibold">
+      <p className="mb-4 text-center text-2xl font-semibold md:text-3.5xl">
         Please mark your interests!
       </p>
 
@@ -39,13 +51,7 @@ const Categories = () => {
               <input
                 type="checkbox"
                 checked={val.selected}
-                onChange={(e) =>
-                  updateCategory.mutate({
-                    rowId: val.id,
-                    userId: 1,
-                    value: e.target.checked,
-                  })
-                }
+                onChange={(e) => handleUpdateCategory(e, val)}
                 className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
               />
               <label htmlFor="scales" className="text-base">

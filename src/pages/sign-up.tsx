@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { toast } from "react-toastify";
+import Loader from "~/components/Loader";
 import { api } from "~/utils/api";
 import { generateItems } from "~/utils/generateData";
 
@@ -20,7 +21,6 @@ const SignUp = () => {
     onSuccess: async (data) => {
       if (data.success) {
         generateCategoriesForUser.mutate(generateItems(100, data.userId!));
-        localStorage.setItem("user_id", data.userId!.toString());
         toast.success("Successfully signed up", {
           position: "bottom-right",
         });
@@ -44,12 +44,18 @@ const SignUp = () => {
     createUser.mutate(body);
   }
 
+  if (createUser.isPending) return <Loader />;
+
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <div className="text-center">
-        <p className="mb-4 text-3.5xl font-semibold">Create your account</p>
+        <p className="mb-4 text-2xl font-semibold md:text-3.5xl">
+          Create your account
+        </p>
 
-        <h1 className="text-2xl font-medium">Welcome to ECOMMERCE</h1>
+        <h1 className="text-1.5xl font-semibold md:text-2xl">
+          Welcome to ECOMMERCE
+        </h1>
         <h2 className="text-base">The next gen business marketplace</h2>
       </div>
 

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { api } from "~/utils/api";
 import { toast } from "react-toastify";
+import Loader from "~/components/Loader";
 
 type LoginType = {
   email: string;
@@ -15,11 +16,10 @@ const Login = () => {
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
-        localStorage.setItem("user_id", data.userId!.toString());
-        toast.success("Successfully logged In", {
+        toast.success(data.message, {
           position: "bottom-right",
         });
-        await router.push("/");
+        await router.replace("/");
       } else {
         toast.error(data.message, {
           position: "bottom-right",
@@ -39,12 +39,16 @@ const Login = () => {
     loginUser.mutate(body);
   }
 
+  if (loginUser.isPending) return <Loader />;
+
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
       <div className="text-center">
-        <p className="mb-4 text-3.5xl font-semibold">Login</p>
+        <p className="mb-4 text-2xl font-semibold md:text-3.5xl">Login</p>
 
-        <h1 className="text-2xl font-medium">Welcome back to ECOMMERCE</h1>
+        <h1 className="text-xl font-semibold md:text-2xl">
+          Welcome back to ECOMMERCE
+        </h1>
         <h2 className="text-base">The next gen business marketplace</h2>
       </div>
 
