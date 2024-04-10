@@ -45,6 +45,22 @@ export const postRouter = createTRPCRouter({
         },
       });
 
+      const token = await new SignJWT({})
+        .setProtectedHeader({ alg: "HS256" })
+        .setJti(nanoid())
+        .setIssuedAt()
+        .setExpirationTime("1h")
+        .sign(new TextEncoder().encode(getJWTSecretKey()));
+
+      ctx.res.setHeader(
+        "Set-Cookie",
+        serialize("user_token", token, {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
       return { success: true, userId: user.id };
     }),
 
@@ -160,12 +176,12 @@ export const postRouter = createTRPCRouter({
 
       // 3. Check for successful update (optional)
       if (!updatedRow) {
-        throw new Error("Row update failed"); // Handle potential errors
+        throw new Error("Failed to update category"); // Handle potential errors
       }
 
       // 4. Return a success message (optional)
       return {
-        message: "Row updated successfully",
+        message: "Category updated successfully",
       };
     }),
 });
