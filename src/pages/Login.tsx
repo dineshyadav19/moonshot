@@ -88,7 +88,7 @@ const Login = () => {
       <div className="flex flex-wrap justify-center gap-x-1">
         <p className="text-brand-black-100">Don&apos;t have an account?</p>
 
-        <Link href="/SignUp" className="font-medium uppercase">
+        <Link href="/sign-up" className="font-medium uppercase">
           Sign up
         </Link>
       </div>

@@ -105,7 +105,7 @@ const SignUp = () => {
       <div className="flex flex-wrap justify-center gap-x-1">
         <p className="text-brand-black-100">Have an Account?</p>
 
-        <Link href="/Login" className="font-medium uppercase">
+        <Link href="/login" className="font-medium uppercase">
           Login
         </Link>
       </div>

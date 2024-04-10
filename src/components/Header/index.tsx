@@ -12,7 +12,7 @@ const Header = () => {
       toast.success(data.message, {
         position: "bottom-right",
       });
-      await router.push("/Login");
+      await router.push("/login");
     },
   });
 
