@@ -15,7 +15,6 @@ const Login = () => {
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
-        localStorage.setItem("user_id", data.userId!.toString());
         toast.success("Successfully logged In", {
           position: "bottom-right",
         });

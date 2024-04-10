@@ -63,7 +63,7 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.number(),
-        otp: z.string().length(6), // Enforce 6-digit OTP
+        otp: z.string().length(6),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -107,7 +107,6 @@ export const postRouter = createTRPCRouter({
 
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
     const { email, password } = input;
-    // Find user by email
     const user = await ctx.db.user.findUnique({
       where: { email },
     });
@@ -137,6 +136,15 @@ export const postRouter = createTRPCRouter({
       }),
     );
 
+    ctx.res.appendHeader(
+      "Set-Cookie",
+      serialize("user_id", user.id.toString(), {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      }),
+    );
+
     return {
       success: true,
       userId: user.id,
@@ -144,10 +152,18 @@ export const postRouter = createTRPCRouter({
   }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    // Clear the JWT token from cookies (client-side)
-    ctx.res.setHeader(
+    ctx.res.appendHeader(
       "Set-Cookie",
       serialize("user_token", "", {
+        httpOnly: true,
+        path: "/",
+        expires: new Date(0), // Set expiration in the past
+      }),
+    );
+
+    ctx.res.appendHeader(
+      "Set-Cookie",
+      serialize("user_id", "", {
         httpOnly: true,
         path: "/",
         expires: new Date(0), // Set expiration in the past
@@ -179,7 +195,6 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number().optional(),
-        userId: z.number(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -187,18 +202,17 @@ export const postRouter = createTRPCRouter({
       const skip = (page - 1) * 6;
 
       const totalItems: Array<{ row_count: number }> = await ctx.db.$queryRaw`
-        SELECT COUNT(DISTINCT categoryName) AS row_count
+        SELECT COUNT(DISTINCT "categoryName") AS row_count
         FROM "Categories";
       `;
 
       const totalPages = Math.ceil(Number(totalItems[0]?.row_count) / 6);
 
       const items = await ctx.db.categories.findMany({
-        distinct: "categoryName",
+        distinct: ["categoryName"],
         skip,
         take: 6,
-        where: { userId: input.userId },
-        orderBy: { updatedOn: "desc" },
+        where: { userId: parseInt(ctx.req.cookies.user_id ?? "") },
       });
 
       return {
@@ -213,30 +227,26 @@ export const postRouter = createTRPCRouter({
   updateCategoriesByUserId: publicProcedure
     .input(
       z.object({
-        userId: z.number(),
         rowId: z.number(),
         value: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, rowId, value } = input;
+      const { rowId, value } = input;
 
       const updatedRow = await ctx.db.categories.update({
         where: {
           id: rowId,
-          userId,
         },
         data: {
           selected: value,
         },
       });
 
-      // 3. Check for successful update (optional)
       if (!updatedRow) {
-        throw new Error("Failed to update category"); // Handle potential errors
+        throw new Error("Failed to update category");
       }
 
-      // 4. Return a success message (optional)
       return {
         message: "Category updated successfully",
       };

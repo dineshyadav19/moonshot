@@ -20,7 +20,6 @@ const SignUp = () => {
     onSuccess: async (data) => {
       if (data.success) {
         generateCategoriesForUser.mutate(generateItems(100, data.userId!));
-        localStorage.setItem("user_id", data.userId!.toString());
         toast.success("Successfully signed up", {
           position: "bottom-right",
         });

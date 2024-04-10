@@ -1,24 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
 
+type CategoryRow = {
+  id: number;
+  categoryName: string;
+  updatedOn: Date;
+  selected: boolean;
+  userId: number;
+};
+
 const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [getUserId, setGetUserId] = useState("");
 
   const { isLoading, data, refetch } = api.post.getCategoriesByUserId.useQuery({
     page: currentPage,
-    userId: parseInt(getUserId),
   });
 
   const updateCategory = api.post.updateCategoriesByUserId.useMutation({
     onSuccess: () => refetch(),
   });
-
-  useEffect(() => {
-    const userId = localStorage.getItem("user_id") ?? "1";
-    setGetUserId(userId);
-  }, []);
+  const handleUpdateCategory = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    val: CategoryRow,
+  ) => {
+    updateCategory.mutate({
+      rowId: val.id,
+      value: e.target.checked,
+    });
+  };
 
   if (isLoading) return <p>Loading......</p>;
 
@@ -39,13 +49,7 @@ const Categories = () => {
               <input
                 type="checkbox"
                 checked={val.selected}
-                onChange={(e) =>
-                  updateCategory.mutate({
-                    rowId: val.id,
-                    userId: 1,
-                    value: e.target.checked,
-                  })
-                }
+                onChange={(e) => handleUpdateCategory(e, val)}
                 className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
               />
               <label htmlFor="scales" className="text-base">
