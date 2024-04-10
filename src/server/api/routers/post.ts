@@ -64,22 +64,6 @@ export const postRouter = createTRPCRouter({
       return { success: true, userId: user.id };
     }),
 
-  createCategories: publicProcedure
-    .input(z.array(itemSchema))
-    .mutation(async ({ ctx, input }) => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        return await ctx.db.categories.createMany({
-          data: input,
-          skipDuplicates: true,
-        });
-      } catch (error) {
-        console.error("Error creating items:", error);
-        throw new Error("Failed to create items.");
-      }
-    }),
-
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {
     const { email, password } = input;
     // Find user by email
@@ -117,6 +101,38 @@ export const postRouter = createTRPCRouter({
       userId: user.id,
     };
   }),
+
+  logout: publicProcedure.mutation(async ({ ctx }) => {
+    // Clear the JWT token from cookies (client-side)
+    ctx.res.setHeader(
+      "Set-Cookie",
+      serialize("user_token", "", {
+        httpOnly: true,
+        path: "/",
+        expires: new Date(0), // Set expiration in the past
+      }),
+    );
+
+    return {
+      message: "Logged out successfully",
+    };
+  }),
+
+  createCategories: publicProcedure
+    .input(z.array(itemSchema))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        return await ctx.db.categories.createMany({
+          data: input,
+          skipDuplicates: true,
+        });
+      } catch (error) {
+        console.error("Error creating items:", error);
+        throw new Error("Failed to create items.");
+      }
+    }),
 
   getCategoriesByUserId: publicProcedure
     .input(

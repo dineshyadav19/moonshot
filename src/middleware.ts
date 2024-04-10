@@ -11,12 +11,12 @@ export default async function middleware(req: NextRequest) {
     req.nextUrl.pathname.startsWith(path),
   );
 
-  if (!verifiedToken) {
-    return NextResponse.redirect(new URL("/Login", req.url));
-  }
-
   if (checkForAuthUrl && !verifiedToken) {
     return;
+  }
+
+  if (!verifiedToken) {
+    return NextResponse.redirect(new URL("/Login", req.url));
   }
 
   if (checkForAuthUrl && verifiedToken) {
