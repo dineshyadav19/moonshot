@@ -16,7 +16,14 @@ const VerifyEmail = () => {
   const router = useRouter();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(""));
 
-  const { mutate } = api.post.createCategories.useMutation();
+  const { mutate, isPending } = api.post.createCategories.useMutation({
+    onSuccess: async () => {
+      toast.success("Categories created successfully!", {
+        position: "bottom-right",
+      });
+      await router.replace("/");
+    },
+  });
 
   const verifyOtp = api.post.verifyOtp.useMutation({
     onSuccess: async (data) => {
@@ -25,7 +32,9 @@ const VerifyEmail = () => {
         toast.success(data.message, {
           position: "bottom-right",
         });
-        await router.replace("/");
+        toast.loading("Creating categories for you", {
+          position: "bottom-right",
+        });
       } else {
         toast.error(data.message, {
           position: "bottom-right",
@@ -82,7 +91,7 @@ const VerifyEmail = () => {
     }
   };
 
-  if (verifyOtp.isPending) return <Loader />;
+  if (verifyOtp.isPending || isPending) return <Loader />;
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
