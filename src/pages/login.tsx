@@ -4,6 +4,7 @@ import React from "react";
 import { api } from "~/utils/api";
 import { toast } from "react-toastify";
 import Loader from "~/components/Loader";
+import PasswordInput from "~/components/PasswordInput";
 
 type LoginType = {
   email: string;
@@ -12,7 +13,7 @@ type LoginType = {
 
 const Login = () => {
   const router = useRouter();
-
+  const [password, setPassword] = React.useState("");
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
@@ -36,7 +37,7 @@ const Login = () => {
     for (const [key, value] of form.entries()) {
       body[key as keyof LoginType] = value as string;
     }
-    loginUser.mutate(body);
+    loginUser.mutate({ ...body, password });
   }
 
   if (loginUser.isPending) return <Loader />;
@@ -70,13 +71,10 @@ const Login = () => {
           <label htmlFor="password" className="text-base">
             Password
           </label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            required
-            placeholder="Enter your password"
-            className="rounded-md border border-brand-neutral-400 p-2"
+          <PasswordInput
+            password={password}
+            setPassword={setPassword}
+            hideStrengthMeter={true}
           />
         </div>
 

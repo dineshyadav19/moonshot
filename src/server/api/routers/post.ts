@@ -224,7 +224,7 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  updateCategoriesByUserId: publicProcedure
+  updateCategoriesByUserId: protectedProcedure
     .input(
       z.object({
         rowId: z.number(),

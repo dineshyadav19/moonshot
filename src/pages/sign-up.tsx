@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { toast } from "react-toastify";
 import Loader from "~/components/Loader";
+import PasswordInput from "~/components/PasswordInput";
 import { api } from "~/utils/api";
 import { generateItems } from "~/utils/generateData";
 
@@ -14,6 +15,7 @@ type SignUpType = {
 
 const SignUp = () => {
   const router = useRouter();
+  const [password, setPassword] = React.useState("");
 
   const generateCategoriesForUser = api.post.createCategories.useMutation();
 
@@ -30,6 +32,7 @@ const SignUp = () => {
           position: "bottom-right",
         });
       }
+      setPassword("");
     },
   });
 
@@ -41,7 +44,7 @@ const SignUp = () => {
     for (const [key, value] of form.entries()) {
       body[key as keyof SignUpType] = value as string;
     }
-    createUser.mutate(body);
+    createUser.mutate({ ...body, password });
   }
 
   if (createUser.isPending) return <Loader />;
@@ -90,13 +93,10 @@ const SignUp = () => {
           <label htmlFor="password" className="text-base">
             Password
           </label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            required
-            placeholder="Enter your password"
-            className="rounded-md border border-brand-neutral-400 p-2"
+          <PasswordInput
+            password={password}
+            setPassword={setPassword}
+            hideStrengthMeter={false}
           />
         </div>
 
