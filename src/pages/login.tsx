@@ -16,7 +16,6 @@ const Login = () => {
   const [password, setPassword] = React.useState("");
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
-      console.log(data);
       if (data.success) {
         if (data.isVerified) {
           toast.success(data.message, {
