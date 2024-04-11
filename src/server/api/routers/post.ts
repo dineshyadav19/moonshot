@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { hash, compare } from "bcryptjs";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { generateJWT } from "~/lib/auth";
 import { serialize } from "cookie";
 import { sendLoginEmail } from "~/utils/mailer";
@@ -55,20 +59,15 @@ export const postRouter = createTRPCRouter({
         otp,
       });
 
-      const token = await generateJWT();
+      const token = await generateJWT({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+      });
 
-      ctx.res.appendHeader(
+      ctx.res.setHeader(
         "Set-Cookie",
         serialize("user_token", token, {
-          httpOnly: true,
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-        }),
-      );
-
-      ctx.res.appendHeader(
-        "Set-Cookie",
-        serialize("user_id", user.id.toString(), {
           httpOnly: true,
           path: "/",
           secure: process.env.NODE_ENV === "production",
@@ -78,7 +77,7 @@ export const postRouter = createTRPCRouter({
       return { success: true, userId: user.id };
     }),
 
-  verifyOtp: publicProcedure
+  verifyOtp: protectedProcedure
     .input(
       z.object({
         otp: z.string().length(6),
@@ -88,7 +87,7 @@ export const postRouter = createTRPCRouter({
       const { otp } = input;
 
       const user = await ctx.db.user.findUnique({
-        where: { id: parseInt(ctx.req.cookies.user_id ?? "") },
+        where: { id: ctx.user.userId },
       });
 
       if (!user) {
@@ -100,24 +99,19 @@ export const postRouter = createTRPCRouter({
       }
 
       await ctx.db.user.update({
-        where: { id: parseInt(ctx.req.cookies.user_id ?? "") },
+        where: { id: ctx.user.userId },
         data: { otp: undefined }, // Set otp to null after successful verification
       });
 
-      const token = await generateJWT();
+      const token = await generateJWT({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+      });
 
-      ctx.res.appendHeader(
+      ctx.res.setHeader(
         "Set-Cookie",
         serialize("user_token", token, {
-          httpOnly: true,
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-        }),
-      );
-
-      ctx.res.appendHeader(
-        "Set-Cookie",
-        serialize("user_id", user.id.toString(), {
           httpOnly: true,
           path: "/",
           secure: process.env.NODE_ENV === "production",
@@ -142,20 +136,15 @@ export const postRouter = createTRPCRouter({
     }
 
     // Generate JWT token with user ID
-    const token = await generateJWT();
+    const token = await generateJWT({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+    });
 
-    ctx.res.appendHeader(
+    ctx.res.setHeader(
       "Set-Cookie",
       serialize("user_token", token, {
-        httpOnly: true,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      }),
-    );
-
-    ctx.res.appendHeader(
-      "Set-Cookie",
-      serialize("user_id", user.id.toString(), {
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
@@ -169,18 +158,9 @@ export const postRouter = createTRPCRouter({
   }),
 
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    ctx.res.appendHeader(
+    ctx.res.setHeader(
       "Set-Cookie",
       serialize("user_token", "", {
-        httpOnly: true,
-        path: "/",
-        expires: new Date(0), // Set expiration in the past
-      }),
-    );
-
-    ctx.res.appendHeader(
-      "Set-Cookie",
-      serialize("user_id", "", {
         httpOnly: true,
         path: "/",
         expires: new Date(0), // Set expiration in the past
@@ -209,7 +189,7 @@ export const postRouter = createTRPCRouter({
       }
     }),
 
-  getCategoriesByUserId: publicProcedure
+  getCategoriesByUserId: protectedProcedure
     .input(
       z.object({
         page: z.number().optional(),
@@ -230,10 +210,12 @@ export const postRouter = createTRPCRouter({
         distinct: ["categoryName"],
         skip,
         take: 6,
-        where: { userId: parseInt(ctx.req.cookies.user_id ?? "") },
+        where: { userId: ctx.user.userId },
       });
 
       return {
+        success: true,
+        message: "Successfully fetched all items",
         items,
         totalPages,
         currentPage: page,
@@ -242,7 +224,7 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  updateCategoriesByUserId: publicProcedure
+  updateCategoriesByUserId: protectedProcedure
     .input(
       z.object({
         rowId: z.number(),

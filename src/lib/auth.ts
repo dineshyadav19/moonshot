@@ -4,6 +4,9 @@ import { nanoid } from "nanoid";
 interface UserJwtPayload {
   jti: string;
   iat: number;
+  userId: number;
+  name: string;
+  email: string;
 }
 
 export const getJWTSecretKey = () => {
@@ -22,14 +25,26 @@ export const verifyToken = async (token: string) => {
       token,
       new TextEncoder().encode(getJWTSecretKey()),
     );
-    return verified.payload as UserJwtPayload;
+    return verified.payload as unknown as UserJwtPayload;
   } catch (error) {
     throw new Error("Your token has expired");
   }
 };
 
-export async function generateJWT() {
-  const token = await new SignJWT({})
+export async function generateJWT({
+  userId,
+  name,
+  email,
+}: {
+  userId: number;
+  name: string;
+  email: string;
+}) {
+  const token = await new SignJWT({
+    userId,
+    name,
+    email,
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setJti(nanoid())
     .setIssuedAt()

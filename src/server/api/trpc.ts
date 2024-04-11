@@ -6,10 +6,11 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { verifyToken } from "~/lib/auth";
 
 import { db } from "~/server/db";
 
@@ -45,7 +46,7 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
   const { req, res } = _opts;
   return { ...createInnerTRPCContext({}), req, res };
 };
@@ -101,3 +102,36 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+export const protectedProcedure = t.procedure.use(
+  async function isAuthed(opts) {
+    const {
+      ctx: { req },
+    } = opts;
+    const token = req.cookies.user_token;
+
+    async function getUserFromToken() {
+      if (token) {
+        try {
+          const user = await verifyToken(token);
+          return user;
+        } catch (error) {
+          return null; // Return null for invalid tokens
+        }
+      }
+      return null; // Return null for missing tokens
+    }
+    const user = await getUserFromToken();
+
+    // `user` is nullable
+    if (!user) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return opts.next({
+      ctx: {
+        user: user,
+      },
+    });
+  },
+);
