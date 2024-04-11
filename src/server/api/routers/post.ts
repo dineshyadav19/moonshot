@@ -100,7 +100,7 @@ export const postRouter = createTRPCRouter({
 
       await ctx.db.user.update({
         where: { id: ctx.user.userId },
-        data: { otp: undefined }, // Set otp to null after successful verification
+        data: { otp: undefined, isVerified: true }, // Set otp to null after successful verification
       });
 
       const token = await generateJWT({
@@ -132,6 +132,7 @@ export const postRouter = createTRPCRouter({
       return {
         success: false,
         message: "Invalid email or password",
+        isVerified: user?.isVerified,
       };
     }
 
@@ -154,6 +155,7 @@ export const postRouter = createTRPCRouter({
     return {
       success: true,
       message: "Successfully Logged In",
+      isVerified: user.isVerified,
     };
   }),
 

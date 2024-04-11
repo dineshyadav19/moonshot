@@ -17,10 +17,17 @@ const Login = () => {
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
-        toast.success(data.message, {
-          position: "bottom-right",
-        });
-        await router.replace("/");
+        if (data.isVerified) {
+          toast.success(data.message, {
+            position: "bottom-right",
+          });
+          await router.replace("/");
+        } else {
+          toast.warning("Your email is not verified", {
+            position: "bottom-right",
+          });
+          await router.replace("/verify-email");
+        }
       } else {
         toast.error(data.message, {
           position: "bottom-right",
