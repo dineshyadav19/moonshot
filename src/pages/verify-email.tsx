@@ -28,6 +28,7 @@ const VerifyEmail = () => {
         render: "Categories created successfully!",
         type: "success",
         isLoading: false,
+        autoClose: 5000,
       });
       await router.replace("/");
     },
