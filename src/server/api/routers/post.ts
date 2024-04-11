@@ -45,7 +45,7 @@ export const postRouter = createTRPCRouter({
         .toString()
         .padStart(6, "0");
 
-      const user = await ctx.db.user.create({
+      await ctx.db.user.create({
         data: {
           name,
           email,
@@ -59,22 +59,7 @@ export const postRouter = createTRPCRouter({
         otp,
       });
 
-      const token = await generateJWT({
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-      });
-
-      ctx.res.setHeader(
-        "Set-Cookie",
-        serialize("user_token", token, {
-          httpOnly: true,
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-        }),
-      );
-
-      return { success: true, userId: user.id };
+      return { success: true, message: "Successfully created the user" };
     }),
 
   verifyOtp: protectedProcedure
@@ -118,7 +103,11 @@ export const postRouter = createTRPCRouter({
         }),
       );
 
-      return { success: true, message: "OTP verified successfully!" };
+      return {
+        success: true,
+        message: "OTP verified successfully!",
+        userId: user.id,
+      };
     }),
 
   login: publicProcedure.input(loginSchema).mutation(async ({ ctx, input }) => {

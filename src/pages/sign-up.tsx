@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import Loader from "~/components/Loader";
 import PasswordInput from "~/components/PasswordInput";
 import { api } from "~/utils/api";
-import { generateItems } from "~/utils/generateData";
 
 type SignUpType = {
   name: string;
@@ -17,16 +16,13 @@ const SignUp = () => {
   const router = useRouter();
   const [password, setPassword] = React.useState("");
 
-  const generateCategoriesForUser = api.post.createCategories.useMutation();
-
   const createUser = api.post.createUser.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
-        generateCategoriesForUser.mutate(generateItems(100, data.userId!));
         toast.success("Successfully signed up", {
           position: "bottom-right",
         });
-        await router.push("/verify-email");
+        await router.replace("/verify-email");
       } else {
         toast.error(data.message, {
           position: "bottom-right",

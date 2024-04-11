@@ -9,15 +9,19 @@ import React, {
 import { toast } from "react-toastify";
 import Loader from "~/components/Loader";
 import { api } from "~/utils/api";
+import { generateItems } from "~/utils/generateData";
 
 const VerifyEmail = () => {
   const length = 6;
   const router = useRouter();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(""));
 
+  const { mutate } = api.post.createCategories.useMutation();
+
   const verifyOtp = api.post.verifyOtp.useMutation({
     onSuccess: async (data) => {
       if (data.success) {
+        mutate(generateItems(100, data.userId!));
         toast.success(data.message, {
           position: "bottom-right",
         });
