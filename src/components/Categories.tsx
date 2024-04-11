@@ -35,7 +35,8 @@ const Categories = () => {
 
   if (isLoading) return <Loader />;
 
-  if (error) return <p>Something went wrong...</p>;
+  if (error)
+    return <p className="text-center text-xl">Something went wrong...</p>;
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
