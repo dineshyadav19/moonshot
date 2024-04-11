@@ -45,7 +45,7 @@ export const postRouter = createTRPCRouter({
         .toString()
         .padStart(6, "0");
 
-      await ctx.db.user.create({
+      const user = await ctx.db.user.create({
         data: {
           name,
           email,
@@ -59,20 +59,25 @@ export const postRouter = createTRPCRouter({
         otp,
       });
 
-      return { success: true, message: "Successfully created the user" };
+      return {
+        success: true,
+        message: "Successfully created the user",
+        userId: user.id,
+      };
     }),
 
-  verifyOtp: protectedProcedure
+  verifyOtp: publicProcedure
     .input(
       z.object({
         otp: z.string().length(6),
+        userId: z.number(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { otp } = input;
+      const { otp, userId } = input;
 
       const user = await ctx.db.user.findUnique({
-        where: { id: ctx.user.userId },
+        where: { id: userId },
       });
 
       if (!user) {
@@ -84,7 +89,7 @@ export const postRouter = createTRPCRouter({
       }
 
       await ctx.db.user.update({
-        where: { id: ctx.user.userId },
+        where: { id: userId },
         data: { otp: undefined, isVerified: true }, // Set otp to null after successful verification
       });
 
@@ -122,29 +127,40 @@ export const postRouter = createTRPCRouter({
         success: false,
         message: "Invalid email or password",
         isVerified: user?.isVerified,
+        userId: user?.id,
       };
     }
 
-    // Generate JWT token with user ID
-    const token = await generateJWT({
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-    });
+    if (user.isVerified) {
+      // Generate JWT token with user ID
+      const token = await generateJWT({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+      });
 
-    ctx.res.setHeader(
-      "Set-Cookie",
-      serialize("user_token", token, {
-        httpOnly: true,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      }),
-    );
+      ctx.res.setHeader(
+        "Set-Cookie",
+        serialize("user_token", token, {
+          httpOnly: true,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        }),
+      );
+
+      return {
+        success: true,
+        message: "Successfully Logged In",
+        isVerified: true,
+        userId: user.id,
+      };
+    }
 
     return {
       success: true,
-      message: "Successfully Logged In",
-      isVerified: user.isVerified,
+      message: "Please verify your email first",
+      isVerified: false,
+      userId: user.id,
     };
   }),
 

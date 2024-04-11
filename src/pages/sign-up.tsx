@@ -22,7 +22,10 @@ const SignUp = () => {
         toast.success("Successfully signed up", {
           position: "bottom-right",
         });
-        await router.replace("/verify-email");
+        await router.push({
+          pathname: "/verify-email",
+          query: { id: data.userId! },
+        });
       } else {
         toast.error(data.message, {
           position: "bottom-right",

@@ -11,15 +11,23 @@ import Loader from "~/components/Loader";
 import { api } from "~/utils/api";
 import { generateItems } from "~/utils/generateData";
 
+const loadingToast = toast.loading("Creating categories for you", {
+  position: "bottom-right",
+});
+
 const VerifyEmail = () => {
   const length = 6;
   const router = useRouter();
+  const getUserId = router.query.id;
+
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(""));
 
   const { mutate, isPending } = api.post.createCategories.useMutation({
     onSuccess: async () => {
-      toast.success("Categories created successfully!", {
-        position: "bottom-right",
+      toast.update(loadingToast, {
+        render: "Categories created successfully!",
+        type: "success",
+        isLoading: false,
       });
       await router.replace("/");
     },
@@ -32,9 +40,7 @@ const VerifyEmail = () => {
         toast.success(data.message, {
           position: "bottom-right",
         });
-        toast.loading("Creating categories for you", {
-          position: "bottom-right",
-        });
+        loadingToast;
       } else {
         toast.error(data.message, {
           position: "bottom-right",
@@ -55,7 +61,10 @@ const VerifyEmail = () => {
 
   const handleOtpSubmit = () => {
     if (otp.join("").length === length) {
-      verifyOtp.mutate({ otp: otp.join("") });
+      verifyOtp.mutate({
+        otp: otp.join(""),
+        userId: parseInt(getUserId as string),
+      });
     }
   };
 

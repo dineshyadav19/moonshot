@@ -7,7 +7,7 @@ export default async function middleware(req: NextRequest) {
   const verifiedToken =
     token && (await verifyToken(token).catch((err) => console.log(err)));
 
-  const isPublicUrl = ["/login", "/sign-up"].some((path) =>
+  const isPublicUrl = ["/login", "/sign-up", "/verify-email"].some((path) =>
     req.nextUrl.pathname.startsWith(path),
   );
 
@@ -25,5 +25,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/sign-up"],
+  matcher: ["/", "/login", "/sign-up", "/verify-email"],
 };

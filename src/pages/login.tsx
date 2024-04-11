@@ -16,6 +16,7 @@ const Login = () => {
   const [password, setPassword] = React.useState("");
   const loginUser = api.post.login.useMutation({
     onSuccess: async (data) => {
+      console.log(data);
       if (data.success) {
         if (data.isVerified) {
           toast.success(data.message, {
@@ -26,7 +27,10 @@ const Login = () => {
           toast.warning("Your email is not verified", {
             position: "bottom-right",
           });
-          await router.replace("/verify-email");
+          await router.push({
+            pathname: "/verify-email",
+            query: { id: data.userId },
+          });
         }
       } else {
         toast.error(data.message, {
