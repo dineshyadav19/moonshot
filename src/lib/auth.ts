@@ -1,4 +1,5 @@
-import { jwtVerify } from "jose";
+import { jwtVerify, SignJWT } from "jose";
+import { nanoid } from "nanoid";
 
 interface UserJwtPayload {
   jti: string;
@@ -26,3 +27,13 @@ export const verifyToken = async (token: string) => {
     throw new Error("Your token has expired");
   }
 };
+
+export async function generateJWT() {
+  const token = await new SignJWT({})
+    .setProtectedHeader({ alg: "HS256" })
+    .setJti(nanoid())
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(new TextEncoder().encode(getJWTSecretKey()));
+  return token;
+}

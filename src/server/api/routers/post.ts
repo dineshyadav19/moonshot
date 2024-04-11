@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { hash, compare } from "bcryptjs";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { SignJWT } from "jose";
-import { nanoid } from "nanoid";
-import { getJWTSecretKey } from "~/lib/auth";
+import { generateJWT } from "~/lib/auth";
 import { serialize } from "cookie";
 import { sendLoginEmail } from "~/utils/mailer";
 
@@ -57,12 +55,7 @@ export const postRouter = createTRPCRouter({
         otp,
       });
 
-      const token = await new SignJWT({})
-        .setProtectedHeader({ alg: "HS256" })
-        .setJti(nanoid())
-        .setIssuedAt()
-        .setExpirationTime("1h")
-        .sign(new TextEncoder().encode(getJWTSecretKey()));
+      const token = await generateJWT();
 
       ctx.res.appendHeader(
         "Set-Cookie",
@@ -111,12 +104,7 @@ export const postRouter = createTRPCRouter({
         data: { otp: undefined }, // Set otp to null after successful verification
       });
 
-      const token = await new SignJWT({})
-        .setProtectedHeader({ alg: "HS256" })
-        .setJti(nanoid())
-        .setIssuedAt()
-        .setExpirationTime("1h")
-        .sign(new TextEncoder().encode(getJWTSecretKey()));
+      const token = await generateJWT();
 
       ctx.res.appendHeader(
         "Set-Cookie",
@@ -154,12 +142,7 @@ export const postRouter = createTRPCRouter({
     }
 
     // Generate JWT token with user ID
-    const token = await new SignJWT({})
-      .setProtectedHeader({ alg: "HS256" })
-      .setJti(nanoid())
-      .setIssuedAt()
-      .setExpirationTime("1h")
-      .sign(new TextEncoder().encode(getJWTSecretKey()));
+    const token = await generateJWT();
 
     ctx.res.appendHeader(
       "Set-Cookie",
