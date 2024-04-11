@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
 import Loader from "./Loader";
+import { toast } from "react-toastify";
 
 type CategoryRow = {
   id: number;
@@ -20,7 +21,14 @@ const Categories = () => {
     });
 
   const updateCategory = api.post.updateCategoriesByUserId.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: async (data) => {
+      if (data.success) {
+        toast.success(data.message, {
+          position: "bottom-right",
+        });
+        await refetch();
+      }
+    },
   });
 
   const handleUpdateCategory = (
