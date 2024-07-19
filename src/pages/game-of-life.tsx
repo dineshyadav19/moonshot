@@ -50,12 +50,13 @@ const calculateNextGrid = (grid: number[][]): number[][] => {
         }
       });
 
-      if (grid[i]?.[j] === 1 && (neighbors < 2 || neighbors > 3)) {
+      const cell = grid[i]?.[j] ?? 0;
+      if (cell === 1 && (neighbors < 2 || neighbors > 3)) {
         newGrid[i][j] = 0;
-      } else if (grid[i]?.[j] === 0 && neighbors === 3) {
+      } else if (cell === 0 && neighbors === 3) {
         newGrid[i][j] = 1;
       } else {
-        newGrid[i][j] = grid[i]?.[j] ?? 0;
+        newGrid[i][j] = cell;
       }
     }
   }

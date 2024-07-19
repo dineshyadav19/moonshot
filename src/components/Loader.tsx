@@ -35,7 +35,7 @@ const Spinner: React.FC<{
 const Loader = ({ loadingText }: { loadingText?: string }) => {
   return (
     <span className="flex items-center justify-center">
-      <span className="opacity-50">{loadingText || "Loading"}</span>{" "}
+      <span className="opacity-50">{loadingText ?? "Loading"}</span>{" "}
       <Spinner color="#112f49" className="ml-4" />
     </span>
   );
