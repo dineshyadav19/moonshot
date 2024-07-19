@@ -17,9 +17,7 @@ const Categories = () => {
   const [categories, setCategories] = useState<CategoryRow[]>([]);
 
   const { isLoading, data, refetch, error } =
-    api.post.getCategoriesByUserId.useQuery({
-      page: currentPage,
-    });
+    api.post.getCategoriesByUserId.useQuery({ page: currentPage });
 
   useEffect(() => {
     if (data) {
@@ -62,7 +60,9 @@ const Categories = () => {
     });
   };
 
-  if (isLoading) return <Loader />;
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   if (error)
     return <p className="text-center text-xl">Something went wrong...</p>;
@@ -73,35 +73,40 @@ const Categories = () => {
         Please mark your interests!
       </p>
       <p className="mt-1 text-center text-base">We will keep you notified.</p>
-
-      <div className="mt-4">
-        <p className="text-lg font-medium">My saved interests!</p>
-        <div className="mt-2 flex flex-col gap-y-3 pl-1">
-          {categories.map((val) => (
-            <div key={val.id} className="flex gap-x-3">
-              <input
-                type="checkbox"
-                id={val.categoryName}
-                checked={val.selected}
-                onChange={(e) => handleUpdateCategory(e, val)}
-                className="scale-150 cursor-pointer border border-neutral-400 accent-neutral-600 checked:accent-black"
-              />
-              <label
-                htmlFor={val.categoryName}
-                className="cursor-pointer text-base"
-              >
-                {val.categoryName}
-              </label>
-            </div>
-          ))}
-
-          <Pagination
-            currentPage={data?.currentPage ?? 1}
-            onPageChange={(page) => setCurrentPage(page)}
-            totalPages={data?.totalPages ?? 1}
-          />
+      {isLoading ? (
+        <div className="mt-4">
+          <Loader />
         </div>
-      </div>
+      ) : (
+        <div className="mt-4">
+          <p className="text-lg font-medium">My saved interests!</p>
+          <div className="mt-2 flex flex-col gap-y-3 pl-1">
+            {categories.map((val) => (
+              <div key={val.id} className="flex gap-x-3">
+                <input
+                  type="checkbox"
+                  id={val.categoryName}
+                  checked={val.selected}
+                  onChange={(e) => handleUpdateCategory(e, val)}
+                  className="scale-150 cursor-pointer border border-neutral-400 accent-neutral-600 checked:accent-black"
+                />
+                <label
+                  htmlFor={val.categoryName}
+                  className="cursor-pointer text-base"
+                >
+                  {val.categoryName}
+                </label>
+              </div>
+            ))}
+
+            <Pagination
+              currentPage={data?.currentPage ?? 1}
+              onPageChange={handlePageChange}
+              totalPages={data?.totalPages ?? 1}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
