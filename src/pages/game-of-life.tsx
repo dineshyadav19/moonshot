@@ -3,6 +3,9 @@ import Random from "@icons/Random.svg";
 import Start from "@icons/Start.svg";
 import Stop from "@icons/Stop.svg";
 import Clear from "@icons/Clear.svg";
+import Link from "next/link";
+import Back from "@icons/Back.svg";
+
 const numRows = 30;
 const numCols = 30;
 
@@ -75,9 +78,15 @@ const GameOfLife: React.FC = () => {
 
   return (
     <div>
-      <h1 className="mb-4 text-center text-3xl font-semibold text-[#112f49]">
-        Game of life
-      </h1>
+      <div className="mb-4 flex items-center justify-center gap-4">
+        <Link href={"/categories"}>
+          <Back className="h-8 w-8" />{" "}
+        </Link>
+        <h1 className="text-center text-2xl font-semibold text-[#112f49]">
+          Game of life
+        </h1>
+      </div>
+
       <div className="flex flex-col items-center justify-center">
         <div
           className="grid gap-px bg-gray-900"
