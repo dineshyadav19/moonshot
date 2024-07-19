@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
 import Loader from "./Loader";
@@ -14,20 +14,34 @@ type CategoryRow = {
 
 const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [categories, setCategories] = useState<CategoryRow[]>([]);
 
   const { isLoading, data, refetch, error } =
     api.post.getCategoriesByUserId.useQuery({
       page: currentPage,
     });
 
+  useEffect(() => {
+    if (data) {
+      setCategories(data.items);
+    }
+  }, [data]);
+
   const updateCategory = api.post.updateCategoriesByUserId.useMutation({
-    onSuccess: async (data) => {
-      if (data.success) {
-        toast.success(data.message, {
+    onSuccess: async (response) => {
+      if (response.success) {
+        toast.success(response.message, {
           position: "bottom-right",
         });
         await refetch();
       }
+    },
+    onError: () => {
+      toast.error("Failed to update category", {
+        position: "bottom-right",
+      });
+      // Optionally refetch to reset state
+      refetch();
     },
   });
 
@@ -35,6 +49,13 @@ const Categories = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     val: CategoryRow,
   ) => {
+    const updatedCategories = categories.map((category) =>
+      category.id === val.id
+        ? { ...category, selected: e.target.checked }
+        : category,
+    );
+    setCategories(updatedCategories);
+
     updateCategory.mutate({
       rowId: val.id,
       value: e.target.checked,
@@ -48,25 +69,27 @@ const Categories = () => {
 
   return (
     <div className="rounded-[20px] border border-brand-neutral-400 p-5 md:p-10">
-      <p className="mb-4 text-center text-2xl font-semibold md:text-3.5xl">
+      <p className="text-center text-2xl font-semibold md:text-3.5xl">
         Please mark your interests!
       </p>
+      <p className="mt-1 text-center text-base">We will keep you notified.</p>
 
-      <p className="mb-6 text-center">We will keep you notified.</p>
-
-      <div>
-        <p className="text-xl font-medium">My saved interests!</p>
-
-        <div className="mt-4 flex flex-col gap-y-3">
-          {data?.items?.map((val) => (
-            <div key={val.id} className="flex gap-x-2">
+      <div className="mt-4">
+        <p className="text-lg font-medium">My saved interests!</p>
+        <div className="mt-2 flex flex-col gap-y-3 pl-1">
+          {categories.map((val) => (
+            <div key={val.id} className="flex gap-x-3">
               <input
                 type="checkbox"
+                id={val.categoryName}
                 checked={val.selected}
                 onChange={(e) => handleUpdateCategory(e, val)}
-                className="scale-150 border border-neutral-400  accent-neutral-600 checked:accent-black"
+                className="scale-150 cursor-pointer border border-neutral-400 accent-neutral-600 checked:accent-black"
               />
-              <label htmlFor="scales" className="text-base">
+              <label
+                htmlFor={val.categoryName}
+                className="cursor-pointer text-base"
+              >
                 {val.categoryName}
               </label>
             </div>
