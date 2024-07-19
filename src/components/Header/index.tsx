@@ -4,7 +4,8 @@ import Nav from "./Nav";
 import { api } from "~/utils/api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
-
+import LoginIcon from "@icons/Login.svg";
+import LogoutIcon from "@icons/Logout.svg";
 const Header = () => {
   const router = useRouter();
   const { mutate } = api.post.logout.useMutation({
@@ -26,16 +27,7 @@ const Header = () => {
 
   return (
     <>
-      <header className={`mt-4 w-full bg-transparent`}>
-        <div className="flex justify-end">
-          <div className="flex gap-4 px-6 text-sm text-brand-black-100">
-            <button disabled>Help</button>
-            <button disabled>Orders & Returns</button>
-            <button onClick={handleLoginLogout} className="cursor-pointer">
-              {router.asPath === "/" ? "Logout" : "Login"}
-            </button>
-          </div>
-        </div>
+      <header>
         <div className="mx-auto max-w-[1440px] px-6">
           <div className="flex h-full items-center justify-between px-0 py-4 lg:py-5">
             <div className="text-2xl font-bold md:text-3.5xl">ECOMMERCE</div>
@@ -45,6 +37,22 @@ const Header = () => {
             <div className="flex items-center gap-x-6">
               <IconSearch />
               <IconCart />
+              <button
+                onClick={handleLoginLogout}
+                className="flex cursor-pointer items-center"
+              >
+                {router.asPath === "/" ? (
+                  <>
+                    <LogoutIcon className="h-6 w-6 text-gray-700" />
+                    <span className="ml-1">Logout</span>
+                  </>
+                ) : (
+                  <>
+                    <LoginIcon className="h-6 w-6 text-gray-700" />
+                    <span className="ml-1">Login</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
