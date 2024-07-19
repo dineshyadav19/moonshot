@@ -74,6 +74,7 @@ const Login = () => {
             name="email"
             id="email"
             required
+            autoComplete="email"
             placeholder="Enter your email"
             className="rounded-md border border-brand-neutral-400 p-2"
           />
@@ -83,6 +84,7 @@ const Login = () => {
             Password
           </label>
           <PasswordInput
+            autoComplete="current-password"
             password={password}
             setPassword={setPassword}
             hideStrengthMeter={true}

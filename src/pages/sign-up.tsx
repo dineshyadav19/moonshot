@@ -71,6 +71,7 @@ const SignUp = () => {
             name="name"
             id="name"
             required
+            autoComplete="username"
             placeholder="Enter your name"
             className="rounded-md border border-brand-neutral-400 p-2"
           />
@@ -84,6 +85,7 @@ const SignUp = () => {
             name="email"
             id="email"
             required
+            autoComplete="email"
             placeholder="Enter your email"
             className="rounded-md border border-brand-neutral-400 p-2"
           />
@@ -93,6 +95,7 @@ const SignUp = () => {
             Password
           </label>
           <PasswordInput
+            autoComplete="new-password"
             password={password}
             setPassword={setPassword}
             hideStrengthMeter={false}
