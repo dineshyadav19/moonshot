@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Pagination from "~/components/Pagination";
 import { api } from "~/utils/api";
-import Loader from "./Loader";
+import Loader from "../components/Loader";
 import { toast } from "react-toastify";
 
 type CategoryRow = {

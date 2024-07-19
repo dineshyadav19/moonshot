@@ -30,7 +30,7 @@ const Header = () => {
       <header>
         <div className="mx-auto max-w-[1440px] px-6">
           <div className="flex h-full items-center justify-between px-0 py-4 lg:py-5">
-            <div className="text-2xl font-bold md:text-3.5xl">ECOMMERCE</div>
+            <div className="text-2xl font-bold md:text-3.5xl">Moonshot</div>
             <div className="hidden h-full w-full items-center justify-center lg:flex">
               <Nav />
             </div>

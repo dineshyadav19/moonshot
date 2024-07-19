@@ -1,5 +1,8 @@
 import React, { useState, useCallback, useRef } from "react";
-
+import Random from "@icons/Random.svg";
+import Start from "@icons/Start.svg";
+import Stop from "@icons/Stop.svg";
+import Clear from "@icons/Clear.svg";
 const numRows = 30;
 const numCols = 30;
 
@@ -106,7 +109,7 @@ const GameOfLife: React.FC = () => {
         </div>
         <div className="mt-4 flex justify-center gap-x-4">
           <button
-            className="rounded bg-[#112f49] px-6 py-2 text-white"
+            className="flex items-center justify-center gap-1 rounded bg-[#112f49] px-6 py-2 text-white "
             onClick={() => {
               setRunning(!running);
               if (!running) {
@@ -115,19 +118,26 @@ const GameOfLife: React.FC = () => {
               }
             }}
           >
-            {running ? "Stop" : "Start"}
+            {running ? (
+              <Stop className="h-5 w-5" />
+            ) : (
+              <Start className="h-5 w-5" />
+            )}
+            <span>{running ? "Stop" : "Start"}</span>
           </button>
           <button
-            className="rounded bg-[#067e30] px-4 py-2 text-white"
+            className="flex items-center justify-center gap-1 rounded bg-[#067e30] px-4 py-2 text-white"
             onClick={() => setGrid(generateRandomGrid())}
           >
-            Randomize
+            <Random className="h-5 w-5" />
+            <span>Randomize</span>
           </button>
           <button
-            className="rounded bg-[#ab3232] px-4 py-2 text-white"
+            className="flex items-center justify-center gap-1 rounded bg-[#ab3232] px-4 py-2 text-white "
             onClick={() => setGrid(generateEmptyGrid())}
           >
-            Clear
+            <Clear className="h-5 w-5" />
+            <span>Clear</span>
           </button>
         </div>
       </div>

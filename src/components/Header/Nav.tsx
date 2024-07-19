@@ -5,10 +5,7 @@ const Nav = () => {
     <nav>
       <ul className="flex items-center justify-between">
         <NavItem href="/categories">Categories</NavItem>
-        <NavItem href="/sale">Sale</NavItem>
-        <NavItem href="/clearance">Clearance</NavItem>
-        <NavItem href="/new-stock">New Stock</NavItem>
-        <NavItem href="/trending">Trending</NavItem>
+        <NavItem href="/game-of-life">Game of life</NavItem>
       </ul>
     </nav>
   );
