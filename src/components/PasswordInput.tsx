@@ -6,12 +6,14 @@ type PasswordInputProps = {
   password: string;
   setPassword: (text: string) => void;
   hideStrengthMeter: boolean;
+  autoComplete: React.HTMLInputAutoCompleteAttribute;
 };
 
 export default function PasswordInput({
   password,
   setPassword,
   hideStrengthMeter,
+  autoComplete,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -42,6 +44,7 @@ export default function PasswordInput({
           placeholder="Enter password"
           value={password}
           name="password"
+          autoComplete={autoComplete}
           className="w-full p-2 outline-none"
         />
         <button

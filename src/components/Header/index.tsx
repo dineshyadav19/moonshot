@@ -16,6 +16,14 @@ const Header = () => {
     },
   });
 
+  const handleLoginLogout = () => {
+    if (router.asPath === "/") {
+      mutate();
+    } else {
+      router.push("/login");
+    }
+  };
+
   return (
     <>
       <header className={`mt-4 w-full bg-transparent`}>
@@ -23,11 +31,7 @@ const Header = () => {
           <div className="flex gap-4 px-6 text-sm text-brand-black-100">
             <button disabled>Help</button>
             <button disabled>Orders & Returns</button>
-            <button
-              onClick={() => mutate()}
-              className="cursor-pointer"
-              disabled={router.asPath === "/" ? false : true}
-            >
+            <button onClick={handleLoginLogout} className="cursor-pointer">
               {router.asPath === "/" ? "Logout" : "Login"}
             </button>
           </div>
