@@ -8,6 +8,7 @@ import LoginIcon from "@icons/Login.svg";
 import LogoutIcon from "@icons/Logout.svg";
 const Header = () => {
   const router = useRouter();
+  const publicRoutes = ["/login", "/sign-up", "/verify-email"];
   const { mutate } = api.post.logout.useMutation({
     onSuccess: async (data) => {
       toast.success(data.message, {
@@ -18,10 +19,10 @@ const Header = () => {
   });
 
   const handleLoginLogout = () => {
-    if (router.asPath === "/") {
-      mutate();
-    } else {
+    if (publicRoutes.includes(router.asPath)) {
       router.push("/login");
+    } else {
+      mutate();
     }
   };
 
@@ -41,7 +42,7 @@ const Header = () => {
                 onClick={handleLoginLogout}
                 className="flex cursor-pointer items-center"
               >
-                {router.asPath === "/" ? (
+                {!publicRoutes.includes(router.asPath) ? (
                   <>
                     <LogoutIcon className="h-6 w-6 text-gray-700" />
                     <span className="ml-1">Logout</span>
