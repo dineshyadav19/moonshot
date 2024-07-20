@@ -16,7 +16,7 @@ const NavItem: React.FC<NavItemProps> = ({
       <Link
         href={href}
         target={target}
-        className={`pointer-events-none text-base font-medium tracking-normal text-black opacity-70 transition-opacity hover:opacity-100`}
+        className={`text-base font-medium tracking-normal text-black opacity-70 transition-opacity hover:opacity-100`}
       >
         {children}
       </Link>
