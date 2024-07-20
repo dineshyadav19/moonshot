@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import LoginIcon from "@icons/Login.svg";
 import LogoutIcon from "@icons/Logout.svg";
+import Link from "next/link";
 const Header = () => {
   const router = useRouter();
   const publicRoutes = ["/login", "/sign-up", "/verify-email"];
@@ -31,9 +32,9 @@ const Header = () => {
       <header>
         <div className="mx-auto max-w-[1440px] px-6">
           <div className="flex h-full items-center justify-between px-0 py-4 lg:py-5">
-            <a className="block text-2xl font-bold md:text-3.5xl" href="/">
+            <Link className="block text-2xl font-bold md:text-3.5xl" href="/">
               Moonshot
-            </a>
+            </Link>
             <div className="hidden h-full w-full items-center justify-center lg:flex">
               <Nav />
             </div>
