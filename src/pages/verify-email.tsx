@@ -41,7 +41,6 @@ const VerifyEmail = () => {
         toast.success(data.message, {
           position: "bottom-right",
         });
-        loadingToast;
       } else {
         toast.error(data.message, {
           position: "bottom-right",
@@ -114,25 +113,23 @@ const VerifyEmail = () => {
 
       <span className="mb-1 mt-8 block text-base">Code</span>
       <div className="mb-8 flex justify-between gap-4">
-        {otp.map((value, index) => {
-          return (
-            <input
-              key={index}
-              type="text"
-              ref={(input) => {
-                if (input) {
-                  inputRefs.current[index] = input;
-                }
-                return void 0;
-              }}
-              value={value}
-              onChange={(e) => handleChange(index, e)}
-              onClick={() => handleClick(index)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              className="h-8 w-8 rounded-md border border-brand-neutral-400 text-center md:h-12 md:w-12"
-            />
-          );
-        })}
+        {otp.map((value, index) => (
+          <input
+            key={index}
+            type="text"
+            ref={(input) => {
+              if (input) {
+                inputRefs.current[index] = input;
+              }
+              return void 0;
+            }}
+            value={value}
+            onChange={(e) => handleChange(index, e)}
+            onClick={() => handleClick(index)}
+            onKeyDown={(e) => handleKeyDown(index, e)}
+            className="h-8 w-8 rounded-md border border-brand-neutral-400 text-center md:h-12 md:w-12"
+          />
+        ))}
       </div>
       <input
         type="submit"
