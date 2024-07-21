@@ -12,7 +12,10 @@ export default async function middleware(req: NextRequest) {
   );
 
   if (isPublicUrl && verifiedToken) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", req.url)).headers.set(
+      "x-middleware-cache",
+      "no-cache",
+    );
   }
 
   if (isPublicUrl && !verifiedToken) {
