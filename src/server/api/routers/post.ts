@@ -144,7 +144,7 @@ export const postRouter = createTRPCRouter({
         serialize("user_token", token, {
           httpOnly: true,
           path: "/",
-          secure: process.env.NODE_ENV === "production",
+          //secure: process.env.NODE_ENV === "production",
         }),
       );
 
