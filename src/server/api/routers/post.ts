@@ -105,6 +105,7 @@ export const postRouter = createTRPCRouter({
           httpOnly: true,
           path: "/",
           secure: process.env.NODE_ENV === "production",
+          sameSite: "none",
         }),
       );
 
